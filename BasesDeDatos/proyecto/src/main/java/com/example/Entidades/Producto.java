@@ -1,6 +1,5 @@
 package com.example.Entidades;
 
-import com.example.enums.CategoriaProducto;
 import com.example.enums.EstadoProducto;
 import com.example.enums.TipoProducto;
 
@@ -14,11 +13,16 @@ public class Producto {
     private int cantidadDisponible;
     private int stockMinimo;
     private TipoProducto tipoProducto;
-    private CategoriaProducto categoria;
+    private int categoria;
     private EstadoProducto estado;
 
+    
+
+    public Producto() {
+    }
+
     public Producto(String nombre, String descripcion, double precio,
-            int cantidadDisponible, int stockMinimo, CategoriaProducto categoria, EstadoProducto estado, TipoProducto tipoProducto) {
+            int cantidadDisponible, int stockMinimo, int categoria, EstadoProducto estado, TipoProducto tipoProducto) {
         this.idProducto = contador;
         this.nombre = nombre;
         this.descripcion = descripcion;
@@ -80,11 +84,11 @@ public class Producto {
         this.stockMinimo = stockMinimo;
     }
 
-    public CategoriaProducto getCategoria() {
+    public int getCategoria() {
         return categoria;
     }
 
-    public void setCategoria(CategoriaProducto categoria) {
+    public void setCategoria(int categoria) {
         this.categoria = categoria;
     }
 
