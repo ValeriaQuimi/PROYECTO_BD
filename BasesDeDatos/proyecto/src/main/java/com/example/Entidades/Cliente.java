@@ -5,14 +5,19 @@ import com.example.enums.CategoriaCliente;
 public class Cliente {
 
     private static int contador = 1;
+
     private int id;
     private String nombre;
-    private String telefono;
+    private int telefono;
     private String direccion;
     private String correo;
     private CategoriaCliente categoria;
 
-    public Cliente( String nombre, String telefono, String direccion, String correo,
+    public Cliente (){
+
+    }
+    
+    public Cliente( String nombre, int telefono, String direccion, String correo,
             CategoriaCliente categoria) {
         this.id = contador;
         this.nombre = nombre;
@@ -47,11 +52,11 @@ public class Cliente {
         this.nombre = nombre;
     }
 
-    public String getTelefono() {
+    public int getTelefono() {
         return telefono;
     }
 
-    public void setTelefono(String telefono) {
+    public void setTelefono(int telefono) {
         this.telefono = telefono;
     }
 

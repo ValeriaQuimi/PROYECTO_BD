@@ -56,7 +56,7 @@ public class PedidoService {
         // 👉 Buscar cliente
         System.out.print("Ingrese ID del cliente: ");
         int idCliente = Integer.parseInt(sc.nextLine());
-        Cliente cliente = ClienteService.buscarClientePorId(String.valueOf(idCliente));
+        Cliente cliente = ClienteService.buscarClientePorId(idCliente);
         if (cliente == null) {
             System.out.println("Cliente no encontrado.");
             return;
