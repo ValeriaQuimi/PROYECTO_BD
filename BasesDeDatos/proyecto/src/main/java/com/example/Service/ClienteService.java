@@ -1,7 +1,9 @@
 package com.example.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Scanner;
 
 import com.example.Entidades.Cliente;
@@ -10,9 +12,8 @@ import com.example.enums.CategoriaCliente;
 public class ClienteService {
 
     private static Scanner sc = new Scanner(System.in);
-    private static List<Cliente> clientes = new ArrayList<>();
 
-    // MENÚ Gestión de Clientes
+    // Menu Gestión de Clientes
     public static void gestionClientes() {
         boolean volver = false;
 
@@ -51,76 +52,170 @@ public class ClienteService {
 
     public static void registrarCliente() {
         System.out.println("\n=== REGISTRO DE CLIENTE ===");
+        
         System.out.print("Nombre: ");
         String nombre = sc.nextLine();
+        
         System.out.print("Teléfono: ");
-        String telefono = sc.nextLine();
-        System.out.print("Dirección: ");
-        String direccion = sc.nextLine();
+        int telefono = Integer.parseInt(sc.nextLine());
+        
         System.out.print("Correo: ");
         String correo = sc.nextLine();
-        System.out.print("Categoría (NORMAL/VIP): ");
-        String entrada = sc.nextLine();
-        CategoriaCliente categoria = CategoriaCliente.valueOf(entrada.toUpperCase());
+        
+        System.out.println("Tipo (vip/estandar): ");
+        String tipo = sc.nextLine();
+        
+        System.out.print("Ciudad: ");
+        String ciudad = sc.nextLine();
+        
+        System.out.print("Calle: ");
+        String calle = sc.nextLine();
+        
+        System.out.print("Referencia de dirección: ");
+        String referencia = sc.nextLine();
 
-        clientes.add(new Cliente(nombre, telefono, direccion, correo, categoria));
-        System.out.println("Cliente registrado.");
+        String sql = "INSERT INTO Cliente (nombre, telefono, correo, tipo, dir_ciudad, dir_calle, dir_referencia) VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+        try (Connection conn = ConexionBD.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setString(1, nombre);
+            ps.setInt(2, telefono);
+            ps.setString(3, correo);
+            ps.setString(4, tipo);
+            ps.setString(5, ciudad);
+            ps.setString(6, calle);
+            ps.setString(7, referencia);
+
+            int filas = ps.executeUpdate();
+
+            if (filas > 0) {
+                System.out.println("Cliente registrado correctamente.");
+            } else {
+                System.out.println("No se pudo registrar el cliente.");
+            }
+        } catch (Exception e) {
+            System.out.println("Error al registrar cliente: " + e.getMessage());
+        }
     }
 
-    // Actualizar información de un cliente
     public static void actualizarCliente() {
         System.out.print("\nIngrese el ID del cliente a actualizar: ");
-        String id = sc.nextLine();
+        int id = Integer.parseInt(sc.nextLine());
 
-        // Buscar al cliente por su ID en la lista
-        Cliente cliente = buscarClientePorId(id);
-        if (cliente != null) {
-            System.out.println("Actualizando: " + cliente.getNombre());
-            System.out.print("Nuevo teléfono: ");
-            cliente.setTelefono(sc.nextLine());
-            System.out.print("Nueva dirección: ");
-            cliente.setDireccion(sc.nextLine());
-            System.out.println("Cliente actualizado.");
-        } else {
-            System.out.println("Cliente no encontrado.");
+        System.out.print("Nuevo teléfono: ");
+        int nuevoTelefono = Integer.parseInt(sc.nextLine());
+        
+        System.out.print("Nueva ciudad: ");
+        String nuevaCiudad = sc.nextLine();
+        
+        System.out.print("Nueva calle: ");
+        String nuevaCalle = sc.nextLine();
+        
+        System.out.print("Nueva referencia: ");
+        String nuevaReferencia = sc.nextLine();
+
+        String sql = "UPDATE Cliente SET telefono = ?, dir_ciudad = ?, dir_calle = ?, dir_referencia = ? WHERE idCliente = ?";
+
+        try (Connection conn = ConexionBD.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, nuevoTelefono);
+            ps.setString(2, nuevaCiudad);
+            ps.setString(3, nuevaCalle);
+            ps.setString(4, nuevaReferencia);
+            ps.setInt(5, id);
+
+            int filasActualizadas = ps.executeUpdate();
+
+            if (filasActualizadas > 0) {
+                System.out.println("Cliente actualizado correctamente.");
+            } else {
+                System.out.println("Cliente no encontrado o no se pudo actualizar.");
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Error al actualizar cliente: " + e.getMessage());
         }
     }
 
-    // Eliminar un cliente
     public static void eliminarCliente() {
         System.out.print("\nIngrese el ID del cliente a eliminar: ");
-        String id = sc.nextLine();
+        int id = Integer.parseInt(sc.nextLine());
 
-        // Buscar al cliente por su ID en la lista
-        Cliente cliente = buscarClientePorId(id);
-        if (cliente != null) {
-            clientes.remove(cliente);
-            System.out.println("Cliente eliminado correctamente.");
-        } else {
-            System.out.println("Cliente no encontrado.");
+        String sql = "DELETE FROM Cliente WHERE idCliente = ?";
+
+        try (Connection conn = ConexionBD.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+
+            int filasEliminadas = ps.executeUpdate();
+
+            if (filasEliminadas > 0) {
+                System.out.println("Cliente eliminado correctamente.");
+            } else {
+                System.out.println("Cliente no encontrado.");
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Error al eliminar cliente: " + e.getMessage());
         }
     }
 
-    // Consultar clientes
     public static void consultarClientes() {
         System.out.println("\n--- Listado de Clientes ---");
-        if (clientes.isEmpty()) {
-            System.out.println("No hay clientes registrados.");
-        } else {
-            for (Cliente cliente : clientes) {
-                System.out.println(cliente);
+
+        String sql = "SELECT idCliente, nombre, telefono, correo, tipo, dir_ciudad, dir_calle, dir_referencia FROM Cliente";
+
+        try (Connection conn = ConexionBD.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                System.out.printf(
+                    "ID: %d | Nombre: %s | Teléfono: %d | Correo: %s | Tipo: %s | Dirección: %s, %s, %s\n",
+                    rs.getInt("idCliente"),
+                    rs.getString("nombre"),
+                    rs.getInt("telefono"),
+                    rs.getString("correo"),
+                    rs.getString("tipo"),
+                    rs.getString("dir_ciudad"),
+                    rs.getString("dir_calle"),
+                    rs.getString("dir_referencia")
+                );
             }
+
+        } catch (SQLException e) {
+            System.out.println("Error al consultar clientes: " + e.getMessage());
         }
     }
 
-    // Método auxiliar para buscar un cliente por su ID
-    public static Cliente buscarClientePorId(String id) {
-        int numID = Integer.parseInt(id);
-        for (Cliente cliente : clientes) {
-            if (cliente.getId() == numID) {
-                return cliente;
+    public static Cliente buscarClientePorId(int id) {
+        String sql = "SELECT idCliente, nombre, telefono, correo, tipo, dir_ciudad, dir_calle, dir_referencia FROM Cliente WHERE idCliente = ?";
+
+        try (Connection conn = ConexionBD.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Cliente cliente = new Cliente();
+                    cliente.setId(rs.getInt("idCliente"));
+                    cliente.setNombre(rs.getString("nombre"));
+                    cliente.setTelefono(rs.getInt("telefono"));
+                    cliente.setCorreo(rs.getString("correo"));
+                    cliente.setCategoria(CategoriaCliente.valueOf(rs.getString("tipo").toUpperCase()));
+                    // Puedes agregar los campos de dirección si los necesitas
+                    return cliente;
+                }
             }
+
+        } catch (SQLException e) {
+            System.out.println("Error al buscar cliente: " + e.getMessage());
         }
+
         return null; // No encontrado
     }
 }
