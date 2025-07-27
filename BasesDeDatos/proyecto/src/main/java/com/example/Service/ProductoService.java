@@ -210,8 +210,8 @@ public class ProductoService {
     // Buscar Producto por Código
 
     public static Producto buscarProductoPorCodigo(String codigo) {
-        String sql = "SELECT idProduct, codigoProducto, nombreProduct, descripcion, precio, cantidadDisp, stockMin, estadoProducto, tipoProducto, idCat "
-                + "FROM Producto WHERE codigoProducto = ?";
+        String sql = "SELECT idProduct, nombreProduct, descripcion, precio, cantidadDisp, stockMin, estadoProducto, tipoProducto, idCat "
+                + "FROM Producto WHERE idProduct= ?";
 
         try (Connection conn = ConexionBD.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
