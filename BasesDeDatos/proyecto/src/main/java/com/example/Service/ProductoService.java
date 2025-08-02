@@ -59,9 +59,6 @@ public class ProductoService {
 
         System.out.println("\n=== REGISTRO DE PRODUCTO ===");
 
-        System.out.println("Codigo producto: ");
-        String codigo = sc.nextLine();
-
         System.out.print("Nombre: ");
         String nombre = sc.nextLine();
 
@@ -84,28 +81,27 @@ public class ProductoService {
         for (EstadoProducto estProducto : EstadoProducto.values()) {
             System.out.println("- " + estProducto);
         }
-        String entradaEstado = sc.nextLine();
+        String entradaEstado = sc.nextLine().toUpperCase();
 
         System.out.println("Elija un tipo: ");
 
         for (TipoProducto tipoProducto : TipoProducto.values()) {
             System.out.println("- " + tipoProducto);
         }
-        String entradaTipo = sc.nextLine();
+        String entradaTipo = sc.nextLine().toUpperCase();
 
-        String sql = "INSERT INTO Producto (idProduct, nombreProduct, descripcion, cantidadDisp, stockMin, precio, estadoProducto, tipoProducto, idCat) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Producto (nombreProduct, descripcion, cantidadDisp, stockMin, precio, estadoProducto, tipoProducto, idCat) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = ConexionBD.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, codigo);
-            ps.setString(2, nombre);
-            ps.setString(3, descripcion);
-            ps.setInt(4, cantidadDisponible);
-            ps.setInt(5, stockMinimo);
-            ps.setDouble(6, precio);
-            ps.setString(7, entradaEstado);
-            ps.setString(8, entradaTipo);
-            ps.setInt(9, idCat);
+            ps.setString(1, nombre);
+            ps.setString(2, descripcion);
+            ps.setInt(3, cantidadDisponible);
+            ps.setInt(4, stockMinimo);
+            ps.setDouble(5, precio);
+            ps.setString(6, entradaEstado.toLowerCase());
+            ps.setString(7, entradaTipo.toLowerCase());
+            ps.setInt(8, idCat);
 
             int filas = ps.executeUpdate();
 
@@ -122,7 +118,7 @@ public class ProductoService {
 
     public static void actualizarProducto() {
         System.out.print("\nIngrese el código del producto a actualizar: ");
-        String codigo = sc.nextLine();
+        int codigo = Integer.parseInt(sc.nextLine());
 
         System.out.print("Nuevo precio: ");
         double nuevoPrecio = Double.parseDouble(sc.nextLine());
@@ -137,7 +133,7 @@ public class ProductoService {
 
             ps.setDouble(1, nuevoPrecio);
             ps.setString(2, nuevaDescripcion);
-            ps.setString(3, codigo);
+            ps.setInt(3, codigo);
 
             int filasActualizadas = ps.executeUpdate();
 
@@ -155,14 +151,14 @@ public class ProductoService {
     // Eliminar Producto
     public static void eliminarProducto() {
         System.out.print("\nIngrese el código del producto a eliminar: ");
-        String codigo = sc.nextLine();
+        int id = Integer.parseInt(sc.nextLine());
 
         String sql = "DELETE FROM Producto WHERE idProduct = ?";
 
         try (Connection conn = ConexionBD.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, codigo);
+            ps.setInt(1, id);
 
             int filasEliminadas = ps.executeUpdate();
 
@@ -209,14 +205,14 @@ public class ProductoService {
 
     // Buscar Producto por Código
 
-    public static Producto buscarProductoPorCodigo(String codigo) {
+    public static Producto buscarProductoPorCodigo(int codigo) {
         String sql = "SELECT idProduct, nombreProduct, descripcion, precio, cantidadDisp, stockMin, estadoProducto, tipoProducto, idCat "
                 + "FROM Producto WHERE idProduct= ?";
 
         try (Connection conn = ConexionBD.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, codigo);
+            ps.setInt(1, codigo);
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {

@@ -69,7 +69,7 @@ public class PedidoService {
         do {
             System.out.print("Ingrese ID del producto a agregar: ");
             int idProd = Integer.parseInt(sc.nextLine());
-            Producto producto = ProductoService.buscarProductoPorCodigo(String.valueOf(idProd));
+            Producto producto = ProductoService.buscarProductoPorCodigo(idProd);
             if (producto != null) {
                 productosSeleccionados.add(producto);
                 montoTotal += producto.getPrecio();
