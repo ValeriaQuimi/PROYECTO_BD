@@ -11,43 +11,6 @@ import java.util.Scanner;
 public class PagoService {
     private static Scanner sc = new Scanner(System.in);
 
-    public static void gestionPagos() {
-        boolean volver = false;
-
-        while (!volver) {
-            System.out.println("\n--- GESTIÓN DE PAGOS ---");
-            System.out.println("1. Registrar nuevo pago");
-            System.out.println("2. Eliminar pago");
-            System.out.println("3. Consultar pagos");
-            System.out.println("4. Editar pago");
-            System.out.println("0. Volver");
-            System.out.print("Seleccione una opción: ");
-
-            int opcion = sc.nextInt();
-            sc.nextLine();
-
-            switch (opcion) {
-                case 1:
-                    registrarPago();
-                    break;
-                case 2:
-                    eliminarPago();
-                    break;
-                case 3:
-                    consultarPagos();
-                    break;
-                case 4:
-                    editarPago();
-                    break;
-                case 0:
-                    volver = true;
-                    break;
-                default:
-                    System.out.println("Opción no válida.");
-            }
-        }
-    }
-
     public static void registrarPago() {
         try {
             System.out.println("\n=== REGISTRAR PAGO ===");

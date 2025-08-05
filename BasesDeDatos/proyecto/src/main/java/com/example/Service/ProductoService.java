@@ -4,56 +4,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 import com.example.Entidades.Producto;
 
-import com.example.enums.EstadoProducto;
-import com.example.enums.TipoProducto;
-
 public class ProductoService {
 
     private static Scanner sc = new Scanner(System.in);
-    public static List<Producto> productos = new ArrayList<>();
-
-    // MENÚ Gestión de Productos
-    public static void gestionProductos() {
-        boolean volver = false;
-
-        while (!volver) {
-            System.out.println("\n--- GESTIÓN DE PRODUCTOS ---");
-            System.out.println("1. Insertar nuevo producto");
-            System.out.println("2. Actualizar información de producto");
-            System.out.println("3. Eliminar producto");
-            System.out.println("4. Consultar productos");
-            System.out.println("0. Volver");
-            System.out.print("Seleccione una opción: ");
-            int opcion = sc.nextInt();
-            sc.nextLine();
-
-            switch (opcion) {
-                case 1:
-                    registrarProducto();
-                    break;
-                case 2:
-                    actualizarProducto();
-                    break;
-                case 3:
-                    eliminarProducto();
-                    break;
-                case 4:
-                    consultarProductos();
-                    break;
-                case 0:
-                    volver = true;
-                    break;
-                default:
-                    System.out.println("Opción no válida.");
-            }
-        }
-    }
 
     public static void registrarProducto() {
 
@@ -77,18 +34,11 @@ public class ProductoService {
         System.out.print("ID Categoría: ");
         int idCat = Integer.parseInt(sc.nextLine());
 
-        System.out.println("Elija un estado");
-        for (EstadoProducto estProducto : EstadoProducto.values()) {
-            System.out.println("- " + estProducto);
-        }
-        String entradaEstado = sc.nextLine().toUpperCase();
+        System.out.println("Elija un estado (disponible, agotado):");
+        String entradaEstado = sc.nextLine().toLowerCase();
 
-        System.out.println("Elija un tipo: ");
-
-        for (TipoProducto tipoProducto : TipoProducto.values()) {
-            System.out.println("- " + tipoProducto);
-        }
-        String entradaTipo = sc.nextLine().toUpperCase();
+        System.out.println("Elija un tipo (personalizado, estandar) : ");
+        String entradaTipo = sc.nextLine().toLowerCase();
 
         String sql = "INSERT INTO Producto (nombreProduct, descripcion, cantidadDisp, stockMin, precio, estadoProducto, tipoProducto, idCat) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?)";
 
@@ -216,18 +166,24 @@ public class ProductoService {
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    Producto producto = new Producto();
-                    producto.setIdProducto(rs.getInt("idProduct"));
-                    producto.setNombre(rs.getString("nombreProduct"));
-                    producto.setDescripcion(rs.getString("descripcion"));
-                    producto.setPrecio(rs.getDouble("precio"));
-                    producto.setCantidadDisponible(rs.getInt("cantidadDisp"));
-                    producto.setStockMinimo(rs.getInt("stockMin"));
-                    producto.setEstado(EstadoProducto.valueOf(rs.getString("estadoProducto")));
-                    producto.setTipoProducto(TipoProducto.valueOf(rs.getString("tipoProducto")));
-                    producto.setCategoria(rs.getInt("idCat"));
-                    return producto;
-                }
+         
+                    int id= rs.getInt("idProduct");
+                    String nombre= rs.getString("nombreProduct");
+                    String descripcion= rs.getString("descripcion");
+                    double precio= rs.getDouble("precio");
+                    int cantidadDisp= rs.getInt("cantidadDisp");
+                    int stockMin= rs.getInt("stockMin");
+                    String estado= rs.getString("estadoProducto");
+                    String tipo= rs.getString("tipoProducto");
+                    int categoria= rs.getInt("idCat");
+                  
+                     System.out.printf(
+                    "ID: %d\nNombre: %s\nDescripción: %s\nPrecio: %.2f\nCantidad Disponible: %d\nStock Mínimo: %d\nEstado: %s\nTipo: %s\nCategoría: %d\n",
+                    id, nombre, descripcion, precio, cantidadDisp, stockMin, estado, tipo, categoria);
+            } 
+             else {
+                System.out.println("Producto no encontrado");
+            }
             }
 
         } catch (SQLException e) {

@@ -2,11 +2,13 @@ package com.example;
 
 import java.util.Scanner;
 
-import com.example.Service.CategoriaService;
-import com.example.Service.ClienteService;
-import com.example.Service.PagoService;
+import com.example.Menu.CategoriaMenu;
+import com.example.Menu.ClienteMenu;
+import com.example.Menu.Menu;
+import com.example.Menu.PagoMenu;
+import com.example.Menu.ProductoMenu;
+import com.example.Menu.RepartidorMenu;
 import com.example.Service.PedidoService;
-import com.example.Service.ProductoService;
 
 public class SistemaJoyeria {
 
@@ -22,21 +24,24 @@ public class SistemaJoyeria {
 
             switch (opcion) {
                 case 1:
-                    CategoriaService.gestionCategorias();
+                    CategoriaMenu.gestionCategorias();
                     break;
                 case 2:
-                    ProductoService.gestionProductos();
+                    ProductoMenu.gestionProductos();
                     break;
                 case 3:
-                    ClienteService.gestionClientes();
+                    ClienteMenu.gestionClientes();
                     break;
                 case 4:
                     PedidoService.gestionPedidos();
                     break;
                 case 5:
-                    PagoService.gestionPagos();
+                    PagoMenu.gestionPagos();
                     break;
 
+                case 6:
+                    RepartidorMenu.gestionRepartidores();
+                    break;
                 case 0:
                     salir = true;
                     System.out.println("¡Hasta luego!");

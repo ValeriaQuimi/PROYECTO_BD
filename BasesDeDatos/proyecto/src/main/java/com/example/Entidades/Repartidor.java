@@ -2,25 +2,9 @@ package com.example.Entidades;
 
 public class Repartidor {
 
-    private static int contador= 1;
     private int id;
     private String nombre;
-    private String telefono;
-
-    public Repartidor(String nombre, String telefono) {
-        this.id= contador;
-        this.nombre = nombre;
-        this.telefono = telefono;
-        contador++;
-    }
-
-    public static int getContador() {
-        return contador;
-    }
-
-    public static void setContador(int contador) {
-        Repartidor.contador = contador;
-    }
+    private int telefono;
 
     public int getId() {
         return id;
@@ -38,11 +22,11 @@ public class Repartidor {
         this.nombre = nombre;
     }
 
-    public String getTelefono() {
+    public int getTelefono() {
         return telefono;
     }
 
-    public void setTelefono(String telefono) {
+    public void setTelefono(int telefono) {
         this.telefono = telefono;
     }
 

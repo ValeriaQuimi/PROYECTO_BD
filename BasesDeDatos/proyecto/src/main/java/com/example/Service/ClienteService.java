@@ -13,43 +13,6 @@ public class ClienteService {
 
     private static Scanner sc = new Scanner(System.in);
 
-    // Menu Gestión de Clientes
-    public static void gestionClientes() {
-        boolean volver = false;
-
-        while (!volver) {
-            System.out.println("\n--- GESTIÓN DE CLIENTES ---");
-            System.out.println("1. Registrar nuevo cliente");
-            System.out.println("2. Actualizar cliente");
-            System.out.println("3. Eliminar cliente");
-            System.out.println("4. Consultar clientes");
-            System.out.println("0. Volver");
-            System.out.print("Seleccione una opción: ");
-            int opcion = sc.nextInt();
-            sc.nextLine(); // Limpiar buffer
-
-            switch (opcion) {
-                case 1:
-                    registrarCliente();
-                    break;
-                case 2:
-                    actualizarCliente();
-                    break;
-                case 3:
-                    eliminarCliente();
-                    break;
-                case 4:
-                    consultarClientes();
-                    break;
-                case 0:
-                    volver = true;
-                    break;
-                default:
-                    System.out.println("Opción no válida.");
-            }
-        }
-    }
-
     public static void registrarCliente() {
         System.out.println("\n=== REGISTRO DE CLIENTE ===");
         
