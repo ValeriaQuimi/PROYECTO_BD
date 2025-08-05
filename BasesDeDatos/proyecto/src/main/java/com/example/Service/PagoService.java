@@ -19,6 +19,7 @@ public class PagoService {
             System.out.println("1. Registrar nuevo pago");
             System.out.println("2. Eliminar pago");
             System.out.println("3. Consultar pagos");
+            System.out.println("4. Editar pago");
             System.out.println("0. Volver");
             System.out.print("Seleccione una opción: ");
 
@@ -26,11 +27,23 @@ public class PagoService {
             sc.nextLine();
 
             switch (opcion) {
-                case 1 -> registrarPago();
-                case 2 -> eliminarPago();
-                case 3 -> consultarPagos();
-                case 0 -> volver = true;
-                default -> System.out.println("Opción no válida.");
+                case 1:
+                    registrarPago();
+                    break;
+                case 2:
+                    eliminarPago();
+                    break;
+                case 3:
+                    consultarPagos();
+                    break;
+                case 4:
+                    editarPago();
+                    break;
+                case 0:
+                    volver = true;
+                    break;
+                default:
+                    System.out.println("Opción no válida.");
             }
         }
     }
@@ -134,6 +147,64 @@ public class PagoService {
             System.out.println("Error al consultar pagos: " + e.getMessage());
         }
     }
+
+    public static void editarPago() {
+    System.out.print("\nIngrese el ID del pago a editar: ");
+    int idPago = Integer.parseInt(sc.nextLine());
+
+    String verificarSql = "SELECT * FROM Pago WHERE idPago = ?";
+    try (Connection conn = ConexionBD.getConnection();
+         PreparedStatement verificarPs = conn.prepareStatement(verificarSql)) {
+
+        verificarPs.setInt(1, idPago);
+        try (ResultSet rs = verificarPs.executeQuery()) {
+            if (!rs.next()) {
+                System.out.println("Pago no encontrado.");
+                return;
+            }
+        }
+
+        System.out.print("Nuevo monto: ");
+        double nuevoMonto = Double.parseDouble(sc.nextLine());
+
+        System.out.print("Nuevo método de pago (efectivo/transferencia): ");
+        String nuevoMetodo = sc.nextLine().toLowerCase();
+
+        if (!nuevoMetodo.equals("efectivo") && !nuevoMetodo.equals("transferencia")) {
+            System.out.println("Método inválido.");
+            return;
+        }
+
+        System.out.print("Nuevo número de orden (pedido): ");
+        int nuevoPedido = Integer.parseInt(sc.nextLine());
+
+        if (!existePedido(nuevoPedido)) {
+            System.out.println("El número de pedido no existe.");
+            return;
+        }
+
+        // Actualizar en la base de datos
+        String updateSql = "UPDATE Pago SET montoPago = ?, metodoPago = ?, numOrden = ? WHERE idPago = ?";
+        try (PreparedStatement updatePs = conn.prepareStatement(updateSql)) {
+            updatePs.setDouble(1, nuevoMonto);
+            updatePs.setString(2, nuevoMetodo);
+            updatePs.setInt(3, nuevoPedido);
+            updatePs.setInt(4, idPago);
+
+            int filas = updatePs.executeUpdate();
+            if (filas > 0) {
+                System.out.println("Pago actualizado correctamente.");
+            } else {
+                System.out.println("No se pudo actualizar el pago.");
+            }
+
+        }
+
+    } catch (SQLException e) {
+        System.out.println("Error al editar pago: " + e.getMessage());
+    }
+}
+
 
     // Método auxiliar para validar que el pedido exista
     private static boolean existePedido(int numOrden) {

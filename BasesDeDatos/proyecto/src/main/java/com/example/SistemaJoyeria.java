@@ -23,6 +23,7 @@ public class SistemaJoyeria {
             switch (opcion) {
                 case 1:
                     CategoriaService.gestionCategorias();
+                    break;
                 case 2:
                     ProductoService.gestionProductos();
                     break;
