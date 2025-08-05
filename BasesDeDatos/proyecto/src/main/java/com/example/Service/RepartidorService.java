@@ -5,7 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Scanner;
-import com.example.Entidades.Repartidor;
 
 public class RepartidorService {
 
@@ -114,7 +113,7 @@ public class RepartidorService {
         }
     }
 
-    public static Repartidor buscarRepartidorPorId(int id) {
+    public static void buscarRepartidorPorId(int id) {
         String sql = "SELECT idRepartidor, nombre, telefono FROM Repartidor WHERE idRepartidor = ?";
 
         try (Connection conn = ConexionBD.getConnection();
@@ -139,7 +138,6 @@ public class RepartidorService {
             System.out.println("Error al buscar repartidor: " + e.getMessage());
         }
 
-        return null; // No encontrado
     }
 
 }

@@ -6,7 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Scanner;
 
-import com.example.Entidades.Producto;
 
 public class ProductoService {
 
@@ -155,7 +154,7 @@ public class ProductoService {
 
     // Buscar Producto por Código
 
-    public static Producto buscarProductoPorCodigo(int codigo) {
+    public static void buscarProductoPorCodigo(int codigo) {
         String sql = "SELECT idProduct, nombreProduct, descripcion, precio, cantidadDisp, stockMin, estadoProducto, tipoProducto, idCat "
                 + "FROM Producto WHERE idProduct= ?";
 
@@ -190,7 +189,6 @@ public class ProductoService {
             System.out.println("Error al buscar producto: " + e.getMessage());
         }
 
-        return null; // No encontrado
     }
 
 }

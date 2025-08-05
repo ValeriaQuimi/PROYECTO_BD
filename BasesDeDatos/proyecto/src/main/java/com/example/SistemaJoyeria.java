@@ -6,9 +6,10 @@ import com.example.Menu.CategoriaMenu;
 import com.example.Menu.ClienteMenu;
 import com.example.Menu.Menu;
 import com.example.Menu.PagoMenu;
+import com.example.Menu.PedidoMenu;
 import com.example.Menu.ProductoMenu;
 import com.example.Menu.RepartidorMenu;
-import com.example.Service.PedidoService;
+
 
 public class SistemaJoyeria {
 
@@ -33,7 +34,7 @@ public class SistemaJoyeria {
                     ClienteMenu.gestionClientes();
                     break;
                 case 4:
-                    PedidoService.gestionPedidos();
+                    PedidoMenu.gestionPedidos();
                     break;
                 case 5:
                     PagoMenu.gestionPagos();
