@@ -2,6 +2,7 @@ package com.example;
 
 import java.util.Scanner;
 
+import com.example.Service.CategoriaService;
 import com.example.Service.ClienteService;
 import com.example.Service.PagoService;
 import com.example.Service.PedidoService;
@@ -21,18 +22,20 @@ public class SistemaJoyeria {
 
             switch (opcion) {
                 case 1:
+                    CategoriaService.gestionCategorias();
+                case 2:
                     ProductoService.gestionProductos();
                     break;
-                case 2:
+                case 3:
                     ClienteService.gestionClientes();
                     break;
-                case 3:
-                    PedidoService.gestionPedidos();
-                    ;
-                    break;
                 case 4:
+                    PedidoService.gestionPedidos();
+                    break;
+                case 5:
                     PagoService.gestionPagos();
                     break;
+
                 case 0:
                     salir = true;
                     System.out.println("¡Hasta luego!");
