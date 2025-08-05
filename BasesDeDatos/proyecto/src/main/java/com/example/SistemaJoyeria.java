@@ -31,7 +31,7 @@ public class SistemaJoyeria {
                     ;
                     break;
                 case 4:
-                    PagoService.registrarPago();
+                    PagoService.gestionPagos();
                     break;
                 case 0:
                     salir = true;
