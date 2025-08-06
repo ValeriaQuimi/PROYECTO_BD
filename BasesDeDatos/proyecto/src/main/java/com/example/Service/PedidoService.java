@@ -56,7 +56,7 @@ public class PedidoService {
 
     private static void agregarProductos(int idPedido) {
         System.out.println("\n--- Agregar productos ---");
-        char continuar;
+        char continuar='s';
         
         do {
 
