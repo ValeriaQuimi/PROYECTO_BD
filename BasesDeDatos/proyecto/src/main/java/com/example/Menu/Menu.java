@@ -11,6 +11,8 @@ public class Menu {
         System.out.println("4. Gestión de Pedidos");
         System.out.println("5. Gestión de Pagos");
         System.out.println("6. Gestión de Repartidores");
+        System.out.println("7. Gestión de Entregas");
+        System.out.println("8. Gestión de Detalles de Pedido");
  
         System.out.println("0. Salir");
         System.out.print("Seleccione una opción: ");
