@@ -4,6 +4,8 @@ import java.util.Scanner;
 
 import com.example.Menu.CategoriaMenu;
 import com.example.Menu.ClienteMenu;
+import com.example.Menu.DetalleMenu;
+import com.example.Menu.EntregaMenu;
 import com.example.Menu.Menu;
 import com.example.Menu.PagoMenu;
 import com.example.Menu.PedidoMenu;
@@ -42,6 +44,12 @@ public class SistemaJoyeria {
 
                 case 6:
                     RepartidorMenu.gestionRepartidores();
+                    break;
+                case 8:
+                    DetalleMenu.gestionDetalles();
+                    break;
+                case 7:
+                    EntregaMenu.gestionEntregas();
                     break;
                 case 0:
                     salir = true;
