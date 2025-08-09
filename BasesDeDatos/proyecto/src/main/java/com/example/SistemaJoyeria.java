@@ -45,11 +45,11 @@ public class SistemaJoyeria {
                 case 6:
                     RepartidorMenu.gestionRepartidores();
                     break;
-                case 8:
-                    DetalleMenu.gestionDetalles();
-                    break;
                 case 7:
                     EntregaMenu.gestionEntregas();
+                    break;
+                case 8:
+                    DetalleMenu.gestionDetalles();
                     break;
                 case 0:
                     salir = true;

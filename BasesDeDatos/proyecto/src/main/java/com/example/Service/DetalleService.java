@@ -1,20 +1,20 @@
 package com.example.Service;
 
 import java.sql.*;
-import java.util.*;
+import java.util.Scanner;
 
 public class DetalleService {
-
-    private static Scanner sc = new Scanner(System.in);
+    private static final Scanner sc = new Scanner(System.in);
 
     public static void registrarDetalle() {
-        try (Connection conn = ConexionBD.getConnection()) {
+        try {
+            System.out.println("\n=== REGISTRAR DETALLE ===");
 
-            int numOrden = seleccionarPedido(conn);
-            if (numOrden == -1) return;
+            System.out.print("Número de orden: ");
+            int numOrden = Integer.parseInt(sc.nextLine());
 
-            int idProduct = seleccionarProducto(conn);
-            if (idProduct == -1) return;
+            System.out.print("ID del producto: ");
+            int idProduct = Integer.parseInt(sc.nextLine());
 
             System.out.print("Cantidad: ");
             int cantidad = Integer.parseInt(sc.nextLine());
@@ -22,53 +22,41 @@ public class DetalleService {
             System.out.print("Precio por cantidad: ");
             double precioCantidad = Double.parseDouble(sc.nextLine());
 
-            String sql = "INSERT INTO detalle (numOrden, idProduct, cantidad, precioCantidad) VALUES (?, ?, ?, ?)";
-            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            String sql = "INSERT INTO Detalle (numOrden, idProduct, cantidad, precioCantidad) VALUES (?, ?, ?, ?)";
+
+            try (Connection conn = ConexionBD.getConnection();
+                 PreparedStatement ps = conn.prepareStatement(sql)) {
+
                 ps.setInt(1, numOrden);
                 ps.setInt(2, idProduct);
                 ps.setInt(3, cantidad);
                 ps.setDouble(4, precioCantidad);
 
                 int filas = ps.executeUpdate();
-                System.out.println(filas > 0 ? "Detalle registrado correctamente." : "No se pudo registrar el detalle.");
+
+                if (filas > 0) {
+                    System.out.println(" Detalle registrado correctamente.");
+                } else {
+                    System.out.println(" No se pudo registrar el detalle.");
+                }
+
+            } catch (SQLException e) {
+                System.out.println(" Error en la base de datos: " + e.getMessage());
             }
 
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-    }
-
-    public static void eliminarDetalle() {
-        try (Connection conn = ConexionBD.getConnection()) {
-
-            int numOrden = seleccionarPedido(conn);
-            if (numOrden == -1) return;
-
-            int idProduct = seleccionarProducto(conn);
-            if (idProduct == -1) return;
-
-            String sql = "DELETE FROM detalle WHERE numOrden = ? AND idProduct = ?";
-            try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setInt(1, numOrden);
-                ps.setInt(2, idProduct);
-
-                int filas = ps.executeUpdate();
-                System.out.println(filas > 0 ? "Detalle eliminado correctamente." : "No se encontró el detalle.");
-            }
-
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+        } catch (NumberFormatException e) {
+            System.out.println(" Error en el formato de los datos ingresados.");
         }
     }
 
     public static void consultarDetalles() {
-        String sql = "SELECT * FROM detalle";
+        System.out.println("\n=== LISTA DE DETALLES ===");
+
+        String sql = "SELECT * FROM Detalle";
 
         try (Connection conn = ConexionBD.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
-
-            System.out.println("\n=== LISTA DE DETALLES ===");
 
             while (rs.next()) {
                 int numOrden = rs.getInt("numOrden");
@@ -76,125 +64,95 @@ public class DetalleService {
                 int cantidad = rs.getInt("cantidad");
                 double precio = rs.getDouble("precioCantidad");
 
-                System.out.printf("Pedido #%d | Producto ID: %d | Cantidad: %d | Precio: %.2f\n",
+                System.out.printf("Orden: %d | Producto: %d | Cantidad: %d | Precio: %.2f%n",
                         numOrden, idProduct, cantidad, precio);
             }
 
         } catch (SQLException e) {
-            System.out.println("Error al consultar detalles: " + e.getMessage());
+            System.out.println(" Error al consultar detalles: " + e.getMessage());
         }
     }
 
     public static void editarDetalle() {
-        try (Connection conn = ConexionBD.getConnection()) {
+        try {
+            System.out.println("\n=== EDITAR DETALLE ===");
 
-            int numOrden = seleccionarPedido(conn);
-            if (numOrden == -1) return;
+            System.out.print("Número de orden: ");
+            int numOrden = Integer.parseInt(sc.nextLine());
 
-            int idProduct = seleccionarProducto(conn);
-            if (idProduct == -1) return;
+            System.out.print("ID del producto: ");
+            int idProduct = Integer.parseInt(sc.nextLine());
 
-            // Verificar si existe el detalle
-            String sqlCheck = "SELECT * FROM detalle WHERE numOrden = ? AND idProduct = ?";
-            try (PreparedStatement check = conn.prepareStatement(sqlCheck)) {
-                check.setInt(1, numOrden);
-                check.setInt(2, idProduct);
-                ResultSet rs = check.executeQuery();
+            // Verificamos si existe
+            String checkSql = "SELECT * FROM Detalle WHERE numOrden = ? AND idProduct = ?";
+            try (Connection conn = ConexionBD.getConnection();
+                 PreparedStatement checkPs = conn.prepareStatement(checkSql)) {
+
+                checkPs.setInt(1, numOrden);
+                checkPs.setInt(2, idProduct);
+                ResultSet rs = checkPs.executeQuery();
+
                 if (!rs.next()) {
-                    System.out.println("Detalle no encontrado.");
+                    System.out.println(" No se encontró un detalle con esa orden y producto.");
                     return;
+                }
+
+                System.out.print("Nueva cantidad: ");
+                int nuevaCantidad = Integer.parseInt(sc.nextLine());
+
+                System.out.print("Nuevo precio por cantidad: ");
+                double nuevoPrecio = Double.parseDouble(sc.nextLine());
+
+                String updateSql = "UPDATE Detalle SET cantidad = ?, precioCantidad = ? WHERE numOrden = ? AND idProduct = ?";
+                try (PreparedStatement updatePs = conn.prepareStatement(updateSql)) {
+                    updatePs.setInt(1, nuevaCantidad);
+                    updatePs.setDouble(2, nuevoPrecio);
+                    updatePs.setInt(3, numOrden);
+                    updatePs.setInt(4, idProduct);
+
+                    int filas = updatePs.executeUpdate();
+                    if (filas > 0) {
+                        System.out.println(" Detalle actualizado correctamente.");
+                    } else {
+                        System.out.println(" No se pudo actualizar el detalle.");
+                    }
                 }
             }
 
-            System.out.print("Nueva cantidad: ");
-            int nuevaCantidad = Integer.parseInt(sc.nextLine());
+        } catch (SQLException | NumberFormatException e) {
+            System.out.println(" Error al editar detalle: " + e.getMessage());
+        }
+    }
 
-            System.out.print("Nuevo precio por cantidad: ");
-            double nuevoPrecio = Double.parseDouble(sc.nextLine());
+    public static void eliminarDetalle() {
+        try {
+            System.out.println("\n=== ELIMINAR DETALLE ===");
 
-            String updateSql = "UPDATE detalle SET cantidad = ?, precioCantidad = ? WHERE numOrden = ? AND idProduct = ?";
-            try (PreparedStatement ps = conn.prepareStatement(updateSql)) {
-                ps.setInt(1, nuevaCantidad);
-                ps.setDouble(2, nuevoPrecio);
-                ps.setInt(3, numOrden);
-                ps.setInt(4, idProduct);
+            System.out.print("Número de orden: ");
+            int numOrden = Integer.parseInt(sc.nextLine());
+
+            System.out.print("ID del producto: ");
+            int idProduct = Integer.parseInt(sc.nextLine());
+
+            String sql = "DELETE FROM Detalle WHERE numOrden = ? AND idProduct = ?";
+
+            try (Connection conn = ConexionBD.getConnection();
+                 PreparedStatement ps = conn.prepareStatement(sql)) {
+
+                ps.setInt(1, numOrden);
+                ps.setInt(2, idProduct);
 
                 int filas = ps.executeUpdate();
-                System.out.println(filas > 0 ? "Detalle actualizado correctamente." : "No se pudo actualizar.");
+                if (filas > 0) {
+                    System.out.println(" Detalle eliminado correctamente.");
+                } else {
+                    System.out.println(" No se encontró un detalle con esos datos.");
+                }
+
             }
 
-        } catch (Exception e) {
-            System.out.println("Error al editar detalle: " + e.getMessage());
+        } catch (SQLException | NumberFormatException e) {
+            System.out.println(" Error al eliminar detalle: " + e.getMessage());
         }
-    }
-
-    // -------------------------------------------
-    // MÉTODOS AUXILIARES PARA MOSTRAR OPCIONES
-    // -------------------------------------------
-
-    private static int seleccionarPedido(Connection conn) throws SQLException {
-        String sql = "SELECT numOrden, idCliente FROM pedido";
-        List<Integer> lista = new ArrayList<>();
-
-        try (PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            int i = 1;
-            while (rs.next()) {
-                int id = rs.getInt("numOrden");
-                int cliente = rs.getInt("idCliente");
-                System.out.printf("%d. Pedido #%d (Cliente ID: %d)\n", i, id, cliente);
-                lista.add(id);
-                i++;
-            }
-        }
-
-        if (lista.isEmpty()) {
-            System.out.println("No hay pedidos disponibles.");
-            return -1;
-        }
-
-        System.out.print("Seleccione un pedido: ");
-        int opcion = Integer.parseInt(sc.nextLine());
-
-        if (opcion < 1 || opcion > lista.size()) {
-            System.out.println("Opción inválida.");
-            return -1;
-        }
-
-        return lista.get(opcion - 1);
-    }
-
-    private static int seleccionarProducto(Connection conn) throws SQLException {
-        String sql = "SELECT idProduct, nombreProduct FROM producto";
-        List<Integer> lista = new ArrayList<>();
-
-        try (PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            int i = 1;
-            while (rs.next()) {
-                int id = rs.getInt("idProduct");
-                String nombre = rs.getString("nombreProduct");
-                System.out.printf("%d. %s (ID: %d)\n", i, nombre, id);
-                lista.add(id);
-                i++;
-            }
-        }
-
-        if (lista.isEmpty()) {
-            System.out.println("No hay productos disponibles.");
-            return -1;
-        }
-
-        System.out.print("Seleccione un producto: ");
-        int opcion = Integer.parseInt(sc.nextLine());
-
-        if (opcion < 1 || opcion > lista.size()) {
-            System.out.println("Opción inválida.");
-            return -1;
-        }
-
-        return lista.get(opcion - 1);
     }
 }
