@@ -1,7 +1,7 @@
 package com.example.Service;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Scanner;
@@ -39,29 +39,25 @@ public class ProductoService {
         System.out.println("Elija un tipo (personalizado, estandar) : ");
         String entradaTipo = sc.nextLine().toLowerCase();
 
-        String sql = "INSERT INTO Producto (nombreProduct, descripcion, cantidadDisp, stockMin, precio, estadoProducto, tipoProducto, idCat) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?)";
+        
+        String sql = "{CALL insertarProducto(?, ?, ?, ?, ?, ?, ?, ?)}";
 
-        try (Connection conn = ConexionBD.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = ConexionBD.getConnection();
+             CallableStatement cs = conn.prepareCall(sql)) {
 
-            ps.setString(1, nombre);
-            ps.setString(2, descripcion);
-            ps.setInt(3, cantidadDisponible);
-            ps.setInt(4, stockMinimo);
-            ps.setDouble(5, precio);
-            ps.setString(6, entradaEstado.toLowerCase());
-            ps.setString(7, entradaTipo.toLowerCase());
-            ps.setInt(8, idCat);
+            cs.setString(1, nombre);
+            cs.setString(2, descripcion);
+            cs.setInt(3, cantidadDisponible);
+            cs.setInt(4, stockMinimo);
+            cs.setDouble(5, precio);
+            cs.setString(6, entradaEstado);
+            cs.setString(7, entradaTipo);
+            cs.setInt(8, idCat);
 
-            int filas = ps.executeUpdate();
+            cs.execute();
 
-            if (filas > 0) {
-                System.out.println("Producto registrado correctamente.");
-            } else {
-                System.out.println("No se pudo registrar el producto.");
-            }
-        } catch (Exception e) {
-            // TODO: handle exception
-            System.out.println("Error al registrar producto: " + e.getMessage());
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -75,26 +71,22 @@ public class ProductoService {
         System.out.print("Nueva descripción: ");
         String nuevaDescripcion = sc.nextLine();
 
-        String sql = "UPDATE Producto SET precio = ?, descripcion = ? WHERE idProduct = ?";
+        
+        String sql = "{CALL actualizarProducto(?, ?, ?)}";
 
         try (Connection conn = ConexionBD.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+             CallableStatement cs = conn.prepareCall(sql)) {
 
-            ps.setDouble(1, nuevoPrecio);
-            ps.setString(2, nuevaDescripcion);
-            ps.setInt(3, codigo);
+            cs.setInt(1, codigo);
+            cs.setDouble(2, nuevoPrecio);
+            cs.setString(3, nuevaDescripcion);
 
-            int filasActualizadas = ps.executeUpdate();
-
-            if (filasActualizadas > 0) {
-                System.out.println("Producto actualizado correctamente.");
-            } else {
-                System.out.println("Producto no encontrado o no se pudo actualizar.");
-            }
+            cs.execute();
 
         } catch (SQLException e) {
-            System.out.println("Error al actualizar producto: " + e.getMessage());
+            System.out.println(e.getMessage());
         }
+
     }
 
     // Eliminar Producto
@@ -102,23 +94,17 @@ public class ProductoService {
         System.out.print("\nIngrese el código del producto a eliminar: ");
         int id = Integer.parseInt(sc.nextLine());
 
-        String sql = "DELETE FROM Producto WHERE idProduct = ?";
+        
+        String sql = "{CALL eliminarProducto(?)}";
 
         try (Connection conn = ConexionBD.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+             CallableStatement cs = conn.prepareCall(sql)) {
 
-            ps.setInt(1, id);
-
-            int filasEliminadas = ps.executeUpdate();
-
-            if (filasEliminadas > 0) {
-                System.out.println("Producto eliminado correctamente.");
-            } else {
-                System.out.println("Producto no encontrado.");
-            }
+            cs.setInt(1, id);
+            cs.execute();
 
         } catch (SQLException e) {
-            System.out.println("Error al eliminar producto: " + e.getMessage());
+            System.out.println(e.getMessage());
         }
     }
 
@@ -126,12 +112,12 @@ public class ProductoService {
     public static void consultarProductos() {
         System.out.println("\n--- Listado de Productos ---");
 
-        String sql = "SELECT p.idProduct, p.nombreProduct, p.descripcion, p.precio, p.cantidadDisp, p.stockMin, p.estadoProducto, p.tipoProducto, c.nombreCat "
-                + "FROM Producto p JOIN Categoria c ON p.idCat = c.idCat";
+        
+        String sql = "{CALL consultarProductos()}";
 
         try (Connection conn = ConexionBD.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
+             CallableStatement cs = conn.prepareCall(sql);
+             ResultSet rs = cs.executeQuery()) {
 
             while (rs.next()) {
                 System.out.printf(
@@ -148,47 +134,8 @@ public class ProductoService {
             }
 
         } catch (SQLException e) {
-            System.out.println("Error al consultar productos: " + e.getMessage());
+            System.out.println(e.getMessage());
         }
-    }
-
-    // Buscar Producto por Código
-
-    public static void buscarProductoPorCodigo(int codigo) {
-        String sql = "SELECT idProduct, nombreProduct, descripcion, precio, cantidadDisp, stockMin, estadoProducto, tipoProducto, idCat "
-                + "FROM Producto WHERE idProduct= ?";
-
-        try (Connection conn = ConexionBD.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setInt(1, codigo);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-         
-                    int id= rs.getInt("idProduct");
-                    String nombre= rs.getString("nombreProduct");
-                    String descripcion= rs.getString("descripcion");
-                    double precio= rs.getDouble("precio");
-                    int cantidadDisp= rs.getInt("cantidadDisp");
-                    int stockMin= rs.getInt("stockMin");
-                    String estado= rs.getString("estadoProducto");
-                    String tipo= rs.getString("tipoProducto");
-                    int categoria= rs.getInt("idCat");
-                  
-                     System.out.printf(
-                    "ID: %d\nNombre: %s\nDescripción: %s\nPrecio: %.2f\nCantidad Disponible: %d\nStock Mínimo: %d\nEstado: %s\nTipo: %s\nCategoría: %d\n",
-                    id, nombre, descripcion, precio, cantidadDisp, stockMin, estado, tipo, categoria);
-            } 
-             else {
-                System.out.println("Producto no encontrado");
-            }
-            }
-
-        } catch (SQLException e) {
-            System.out.println("Error al buscar producto: " + e.getMessage());
-        }
-
     }
 
 }
