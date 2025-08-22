@@ -23,6 +23,7 @@ CREATE USER "tesorero"@"localhost" IDENTIFIED BY "managementdb";
 
 --Permisos del tercer usuario
 GRANT ALL PRIVILEGES ON gemaplusdb.pago TO "tesorero"@"localhost";
+GRANT ALL PRIVILEGES ON gemaplusdb.pagosdelmes TO "tesorero"@"localhost";
 GRANT SELECT ON gemaplusdb.cliente TO "tesorero"@"localhost";
 GRANT SELECT ON gemaplusdb.pedido TO "tesorero"@"localhost";
 GRANT SELECT ON gemaplusdb.detalle TO "tesorero"@"localhost";
