@@ -1,69 +1,84 @@
 package com.example.Service;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Scanner;
 
 public class CategoriaService {
+
     private static Scanner sc = new Scanner(System.in);
 
     public static void registrarCategoria() {
-        try {
-            System.out.println("\n=== REGISTRO DE CATEGORÍA ===");
+        System.out.println("\n=== REGISTRO DE CATEGORÍA ===");
 
-            System.out.print("Nombre de la categoría: ");
-            String nombre = sc.nextLine();
+        System.out.print("Nombre de la categoría: ");
+        String nombre = sc.nextLine();
 
-            System.out.print("Descripción: ");
-            String descripcion = sc.nextLine();
+        System.out.print("Descripción: ");
+        String descripcion = sc.nextLine();
 
-            String sql = "INSERT INTO Categoria (nombreCat, descripcion) VALUES (?, ?)";
+        String sql = "{ CALL sp_insertarCategoria(?, ?) }";
 
-            try (Connection conn = ConexionBD.getConnection();
-                    PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = ConexionBD.getConnection();
+                CallableStatement cs = conn.prepareCall(sql)) {
 
-                ps.setString(1, nombre);
-                ps.setString(2, descripcion);
+            cs.setString(1, nombre);
+            cs.setString(2, descripcion);
 
-                int filas = ps.executeUpdate();
+            cs.execute();
+            System.out.println("Categoría registrada correctamente.");
 
-                if (filas > 0) {
-                    System.out.println("Categoría registrada correctamente.");
-                } else {
-                    System.out.println("No se pudo registrar la categoría.");
-                }
+        } catch (SQLException e) {
+            System.out.println("Error al registrar categoría: " + e.getMessage());
+        }
+    }
 
-            } catch (SQLException e) {
-                System.out.println("Error en la base de datos: " + e.getMessage());
-            }
+    public static void editarCategoria() {
+        System.out.println("\n=== EDICIÓN DE CATEGORÍA ===");
 
-        } catch (Exception e) {
-            System.out.println("Error en la entrada de datos.");
+        System.out.print("Ingrese el ID de la categoría a editar: ");
+        int idCat = Integer.parseInt(sc.nextLine());
+
+        System.out.print("Nuevo nombre: ");
+        String nuevoNombre = sc.nextLine();
+
+        System.out.print("Nueva descripción: ");
+        String nuevaDescripcion = sc.nextLine();
+
+        String sql = "{ CALL sp_actualizarCategoria(?, ?, ?) }";
+
+        try (Connection conn = ConexionBD.getConnection();
+                CallableStatement cs = conn.prepareCall(sql)) {
+
+            cs.setInt(1, idCat);
+            cs.setString(2, nuevoNombre);
+            cs.setString(3, nuevaDescripcion);
+
+            cs.execute();
+            System.out.println("Categoría actualizada correctamente.");
+
+        } catch (SQLException e) {
+            System.out.println("Error al actualizar categoría: " + e.getMessage());
         }
     }
 
     public static void eliminarCategoria() {
-        System.out.print("\nIngrese el ID de la categoría a eliminar: ");
+        System.out.println("\n=== ELIMINACIÓN DE CATEGORÍA ===");
+
+        System.out.print("Ingrese el ID de la categoría a eliminar: ");
         int idCat = Integer.parseInt(sc.nextLine());
 
-        String sql = "DELETE FROM Categoria WHERE idCat = ?";
+        String sql = "{ CALL sp_eliminarCategoria(?) }";
 
         try (Connection conn = ConexionBD.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+                CallableStatement cs = conn.prepareCall(sql)) {
 
-            ps.setInt(1, idCat);
-            int filas = ps.executeUpdate();
+            cs.setInt(1, idCat);
 
-            if (filas > 0) {
-                System.out.println("Categoría eliminada correctamente.");
-            } else {
-                System.out.println("No se encontró una categoría con ese ID.");
-            }
+            cs.execute();
+            System.out.println("Categoría eliminada correctamente.");
 
         } catch (SQLException e) {
-            System.out.println("Error al eliminar la categoría: " + e.getMessage());
+            System.out.println("Error al eliminar categoría: " + e.getMessage());
         }
     }
 
@@ -81,53 +96,11 @@ public class CategoriaService {
                 String nombre = rs.getString("nombreCat");
                 String descripcion = rs.getString("descripcion");
 
-                System.out.printf("ID: %d | Nombre: %s | Descripción: %s\n", id, nombre, descripcion);
+                System.out.printf("ID: %d | Nombre: %s | Descripción: %s%n", id, nombre, descripcion);
             }
 
         } catch (SQLException e) {
             System.out.println("Error al consultar categorías: " + e.getMessage());
         }
     }
-
-    public static void editarCategoria() {
-        System.out.print("\nIngrese el ID de la categoría a editar: ");
-        int idCat = Integer.parseInt(sc.nextLine());
-
-        String verificarSql = "SELECT * FROM Categoria WHERE idCat = ?";
-        try (Connection conn = ConexionBD.getConnection();
-                PreparedStatement verificarPs = conn.prepareStatement(verificarSql)) {
-
-            verificarPs.setInt(1, idCat);
-            try (ResultSet rs = verificarPs.executeQuery()) {
-                if (!rs.next()) {
-                    System.out.println("Categoría no encontrada.");
-                    return;
-                }
-            }
-
-            System.out.print("Nuevo nombre: ");
-            String nuevoNombre = sc.nextLine();
-
-            System.out.print("Nueva descripción: ");
-            String nuevaDescripcion = sc.nextLine();
-
-            String updateSql = "UPDATE Categoria SET nombreCat = ?, descripcion = ? WHERE idCat = ?";
-            try (PreparedStatement updatePs = conn.prepareStatement(updateSql)) {
-                updatePs.setString(1, nuevoNombre);
-                updatePs.setString(2, nuevaDescripcion);
-                updatePs.setInt(3, idCat);
-
-                int filas = updatePs.executeUpdate();
-                if (filas > 0) {
-                    System.out.println("Categoría actualizada correctamente.");
-                } else {
-                    System.out.println("No se pudo actualizar la categoría.");
-                }
-            }
-
-        } catch (SQLException e) {
-            System.out.println("Error al editar categoría: " + e.getMessage());
-        }
-    }
-
 }
