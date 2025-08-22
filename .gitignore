@@ -1,3 +1,9 @@
+# Ignorar todos los archivos .class compilados
 *.class
-*.class
+
+# Ignorar carpetas de compilación comunes
+/bin/
+/build/
+/out/
+
 BasesDeDatos/proyecto/src/main/java/com/example/Service/ConexionBD.java
