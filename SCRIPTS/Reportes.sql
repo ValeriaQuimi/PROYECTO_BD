@@ -17,3 +17,27 @@ ORDER BY total_cantidad_pedida DESC;
 
 SELECT *
 FROM reporteCategoriaMasVendida; 
+
+-- Reporte 2
+
+CREATE OR REPLACE VIEW reporteHistorialDeComprasDeClientes AS
+SELECT 
+    c.idCliente,
+    c.nombre AS nombreCliente,
+    c.correo,
+    c.tipo,
+    p.numOrden,
+    p.fechaPedido, -- si no tienes fecha, se puede quitar
+    p.precioTotal,
+    d.cantidad,
+    pr.nombreProduct,
+    pr.tipoProducto,
+    d.precioCantidad
+FROM Cliente c
+INNER JOIN Pedido p ON c.idCliente = p.idCliente
+INNER JOIN Detalle d ON p.numOrden = d.numOrden
+INNER JOIN Producto pr  ON d.idProduct = pr.idProduct
+ORDER BY c.idCliente, p.numOrden;
+
+SELECT *
+FROM reporteHistorialDeComprasDeClientes;
