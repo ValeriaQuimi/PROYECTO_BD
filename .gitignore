@@ -1,1 +1,3 @@
 *.class
+*.class
+BasesDeDatos/proyecto/src/main/java/com/example/Service/ConexionBD.java
