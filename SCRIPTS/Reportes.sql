@@ -41,3 +41,24 @@ ORDER BY c.idCliente, p.numOrden;
 
 SELECT *
 FROM reporteHistorialDeComprasDeClientes;
+
+
+-- Reporte 3
+
+CREATE OR REPLACE VIEW pagosDelMes as
+SELECT
+(pa.idPago)ID,
+(pa.montoPago)Monto,
+(pa.fechaPago)Fecha,
+(pa.metodoPago)Metodo,
+(pe.numOrden)Pedido,
+(c.nombre)Cliente,
+(c.correo)Correo,
+(c.tipo)TipoCliente
+FROM cliente c
+JOIN pedido pe USING(idCliente)
+JOIN pago pa USING(numOrden)
+WHERE MONTH(fechaPago) = MONTH(curdate());
+
+SELECT *
+FROM pagosdelmes;
