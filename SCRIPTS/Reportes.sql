@@ -45,7 +45,7 @@ FROM reporteHistorialDeComprasDeClientes;
 
 -- Reporte 3
 
-CREATE OR REPLACE VIEW pagosDelMes as
+CREATE OR REPLACE VIEW reportePagosDelMes as
 SELECT
     (pa.idPago)ID,
     (pa.montoPago)Monto,
