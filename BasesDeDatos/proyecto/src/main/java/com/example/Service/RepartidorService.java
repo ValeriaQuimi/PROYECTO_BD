@@ -19,7 +19,7 @@ public class RepartidorService {
         System.out.print("Teléfono: ");
         int telefono = Integer.parseInt(sc.nextLine());
 
-        String sql = "{CALL insertarRepartidor(?, ?)}";
+        String sql = "{CALL sp_insertarRepartidor(?, ?)}";
 
         try (Connection conn = ConexionBD.getConnection();
                 CallableStatement cs = conn.prepareCall(sql)) {
@@ -40,7 +40,7 @@ public class RepartidorService {
         System.out.print("Nuevo teléfono: ");
         int nuevoTelefono = Integer.parseInt(sc.nextLine());
 
-        String sql = "{CALL actualizarRepartidor(?, ?)}";
+        String sql = "{CALL sp_actualizarRepartidor(?, ?)}";
 
         try (Connection conn = ConexionBD.getConnection();
                 CallableStatement cs = conn.prepareCall(sql)) {
@@ -75,7 +75,7 @@ public class RepartidorService {
     public static void consultarRepartidores() {
         System.out.println("\n--- Listado de Repartidores ---");
 
-        String sql = "{CALL consultarRepartidores()}";
+        String sql = "{CALL sp_consultarRepartidores()}";
         try (Connection conn = ConexionBD.getConnection();
                 CallableStatement cs = conn.prepareCall(sql);
                 ResultSet rs = cs.executeQuery()) {

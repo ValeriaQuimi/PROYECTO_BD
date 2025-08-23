@@ -40,7 +40,7 @@ public class ProductoService {
         String entradaTipo = sc.nextLine().toLowerCase();
 
         
-        String sql = "{CALL insertarProducto(?, ?, ?, ?, ?, ?, ?, ?)}";
+        String sql = "{CALL sp_insertarProducto(?, ?, ?, ?, ?, ?, ?, ?)}";
 
         try (Connection conn = ConexionBD.getConnection();
              CallableStatement cs = conn.prepareCall(sql)) {
@@ -72,7 +72,7 @@ public class ProductoService {
         String nuevaDescripcion = sc.nextLine();
 
         
-        String sql = "{CALL actualizarProducto(?, ?, ?)}";
+        String sql = "{CALL sp_actualizarProducto(?, ?, ?)}";
 
         try (Connection conn = ConexionBD.getConnection();
              CallableStatement cs = conn.prepareCall(sql)) {
@@ -95,7 +95,7 @@ public class ProductoService {
         int id = Integer.parseInt(sc.nextLine());
 
         
-        String sql = "{CALL eliminarProducto(?)}";
+        String sql = "{CALL sp_eliminarProducto(?)}";
 
         try (Connection conn = ConexionBD.getConnection();
              CallableStatement cs = conn.prepareCall(sql)) {
@@ -113,7 +113,7 @@ public class ProductoService {
         System.out.println("\n--- Listado de Productos ---");
 
         
-        String sql = "{CALL consultarProductos()}";
+        String sql = "{CALL sp_consultarProductos()}";
 
         try (Connection conn = ConexionBD.getConnection();
              CallableStatement cs = conn.prepareCall(sql);

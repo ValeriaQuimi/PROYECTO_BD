@@ -4,7 +4,7 @@ USE gemaplusdb;
 
 DELIMITER //
 
-CREATE PROCEDURE insertarRepartidor(
+CREATE PROCEDURE sp_insertarRepartidor(
     IN p_nombre VARCHAR(100),
     IN p_telefono INT
 )
@@ -34,7 +34,7 @@ DELIMITER ;
 
 DELIMITER $$
 
-CREATE PROCEDURE actualizarRepartidor(
+CREATE PROCEDURE sp_actualizarRepartidor(
     IN p_id INT,
     IN p_nuevoTelefono INT
 )
@@ -64,7 +64,7 @@ DELIMITER ;
 
 DELIMITER $$
 
-CREATE PROCEDURE eliminarRepartidor(
+CREATE PROCEDURE sp_eliminarRepartidor(
     IN p_id INT
 )
 BEGIN
@@ -92,7 +92,7 @@ DELIMITER ;
 
 DELIMITER $$
 
-CREATE PROCEDURE consultarRepartidores()
+CREATE PROCEDURE sp_consultarRepartidores()
 BEGIN
 
  DECLARE EXIT HANDLER FOR SQLEXCEPTION

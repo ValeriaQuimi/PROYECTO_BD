@@ -3,7 +3,7 @@ USE gemaplusdb;
 -- SP Para Producto
 
 DELIMITER //
-CREATE PROCEDURE insertarProducto(
+CREATE PROCEDURE sp_insertarProducto(
  IN p_nombre VARCHAR(100),
     IN p_descripcion TEXT,
     IN p_cantidadDisp INT,
@@ -52,7 +52,7 @@ DELIMITER ;
 
 DELIMITER ///
 
-CREATE PROCEDURE actualizarProducto(
+CREATE PROCEDURE sp_actualizarProducto(
 	IN p_idProduct INT,
     IN p_precio DECIMAL(10,2),
     IN p_descripcion TEXT
@@ -90,7 +90,7 @@ END///
  
  
  DELIMITER /
- CREATE PROCEDURE eliminarProducto( IN p_idProduct INT)
+ CREATE PROCEDURE sp_eliminarProducto( IN p_idProduct INT)
  BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
@@ -116,7 +116,7 @@ DELIMITER ;
  
  
  DELIMITER /
- CREATE PROCEDURE consultarProductos()
+ CREATE PROCEDURE sp_consultarProductos()
  BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
