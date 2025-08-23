@@ -9,14 +9,15 @@ GRANT SELECT ON gemaplusdb.Producto TO 'AsesorVentas'@'localhost';
 GRANT SELECT ON gemaplusdb.reporteHistorialDeComprasDeClientes TO 'est2'@'localhost';
 GRANT SELECT ON gemaplusdb.reporteCategoriaMasVendida TO 'AsesorVentas'@'localhost';
 
---Segundo usuario
-CREATE USER 'est2'@'localhost' IDENTIFIED BY '2025bd2pa';
+-- Segundo usuario 
+CREATE USER 'Gerente'@'localhost' IDENTIFIED BY '2025bd2pa';
 
---Permisos del segundo usuario
-GRANT EXECUTE ON PROCEDURE gemaplusdb.insertarCliente TO 'est2'@'localhost';
-GRANT SELECT, UPDATE ON gemaplusdb.Pedido TO 'est2'@'localhost';
-
-GRANT SELECT ON gemaplusdb.reporteHistorialDeComprasDeClientes TO 'est2'@'localhost';
+-- Permisos del segundo usuario 
+GRANT ALL PRIVILEGES ON gemaplusdb.Cliente TO 'Gerente'@'localhost';
+GRANT ALL PRIVILEGES ON gemaplusdb.Pedido TO 'Gerente'@'localhost';
+GRANT ALL PRIVILEGES ON gemaplusdb.Producto TO 'Gerente'@'localhost';
+GRANT SELECT ON gemaplusdb.vw_clientes_mas_pedidos TO 'Gerente'@'localhost';
+GRANT SELECT ON gemaplusdb.vw_clientes_historial_compras TO 'Gerente'@'localhost';
 
 --Tercer usuario
 CREATE USER "tesorero"@"localhost" IDENTIFIED BY "managementdb";
