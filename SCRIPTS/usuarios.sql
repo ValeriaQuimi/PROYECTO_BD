@@ -38,5 +38,9 @@ GRANT SELECT ON gemaplusdb.pedido TO "repartidor"@"localhost";
 GRANT SELECT ON gemaplusdb.cliente TO "repartidor"@"localhost";
 
 --Quinto usuario
+CREATE USER "EncargadoInventario"@"localhost" IDENTIFIED BY "Bodega";
 
 --Permisos del quinto usuario
+GRANT ALL PRIVILEGES ON gemaplusdb.Categoria TO "EncargadoInventario"@"localhost";
+GRANT ALL PRIVILEGES ON gemaplusdb.producto TO "EncargadoInventario"@"localhost";
+GRANT SELECT ON gemaplusdb.detalle TO "EncargadoInventario"@"localhost";

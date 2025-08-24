@@ -61,4 +61,22 @@ JOIN pago pa USING(numOrden)
 WHERE MONTH(fechaPago) = MONTH(curdate());
 
 SELECT *
-FROM pagosdelmes;
+FROM reportePagosDelMes;
+
+-- Reporte 4
+
+CREATE VIEW vista_entregas_repartidor_cliente AS
+SELECT 
+    e.numEntrega,
+    e.fechaEntrega,
+    e.estadoEntrega,
+    r.nombre AS nombreRepartidor,
+    c.nombre AS nombreCliente,
+    c.telefono
+FROM entrega e
+JOIN repartidor r ON e.idRepartidor = r.idRepartidor
+JOIN pedido p ON e.numOrden = p.numOrden
+JOIN cliente c ON p.idCliente = c.idCliente;
+
+select *
+from ista_entregas_repartidor_cliente;
