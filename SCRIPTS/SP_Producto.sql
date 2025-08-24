@@ -49,7 +49,7 @@ END
 
 DELIMITER ;
 
-
+-- SP para actualizarProducto
 DELIMITER ///
 
 CREATE PROCEDURE sp_actualizarProducto(
@@ -87,7 +87,7 @@ END///
  
  DELIMITER; 
  
- 
+ -- SP para eliminarProducto
  
  DELIMITER /
  CREATE PROCEDURE sp_eliminarProducto( IN p_idProduct INT)
@@ -115,6 +115,7 @@ DELIMITER ;
  
  
  
+ -- SP para consultar productos
  DELIMITER /
  CREATE PROCEDURE sp_consultarProductos()
  BEGIN
