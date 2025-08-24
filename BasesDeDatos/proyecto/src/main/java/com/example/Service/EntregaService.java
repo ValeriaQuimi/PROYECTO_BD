@@ -28,22 +28,23 @@ public class EntregaService {
             int numOrden = seleccionarPedido(conn);
             if (numOrden == -1) return;
 
-            // Insertar en la base de datos
-            String sql = "INSERT INTO entrega (fechaEntrega, estadoEntrega, idRepartidor, numOrden) VALUES (?, ?, ?, ?)";
-            try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setDate(1, fechaEntrega);
-                ps.setString(2, estado);
-                ps.setInt(3, idRepartidor);
-                ps.setInt(4, numOrden);
+            String sql = "{CALL sp_insertar_entrega(?, ?, ?, ?)}";
+        try (CallableStatement cs = conn.prepareCall(sql)) {
+            cs.setDate(1, fechaEntrega);
+            cs.setString(2, estado);
+            cs.setInt(3, idRepartidor);
+            cs.setInt(4, numOrden);
 
-                int filas = ps.executeUpdate();
-                System.out.println(filas > 0 ? "Entrega registrada correctamente." : "No se pudo registrar la entrega.");
-            }
-
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+            cs.execute();
+            System.out.println("Entrega registrada correctamente mediante SP.");
         }
+
+    } catch (SQLException e) {
+        System.out.println("Error de SQL: " + e.getMessage());
+    } catch (Exception e) {
+        System.out.println("Error general: " + e.getMessage());
     }
+}
 
     public static void consultarEntregas() {
         System.out.println("\n=== LISTA DE ENTREGAS ===");
@@ -81,16 +82,18 @@ public class EntregaService {
         System.out.print("Ingrese el número de entrega a eliminar: ");
         int numEntrega = Integer.parseInt(sc.nextLine());
 
-        String sql = "DELETE FROM entrega WHERE numEntrega = ?";
+       String sql = "{CALL sp_eliminar_entrega(?)}";
 
-        try (Connection conn = ConexionBD.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+    try (Connection conn = ConexionBD.getConnection();
+         CallableStatement cs = conn.prepareCall(sql)) {
 
-            ps.setInt(1, numEntrega);
-            int filas = ps.executeUpdate();
+        cs.setInt(1, numEntrega);
+        cs.execute();
 
-            System.out.println(filas > 0 ? "Entrega eliminada correctamente." : "No se encontró la entrega.");
-        } catch (SQLException e) {
+        System.out.println("Entrega eliminada correctamente.");
+
+    } catch (SQLException e) {
+        // Si el SP lanza un SIGNAL, el mensaje se captura aquí
             System.out.println("Error al eliminar entrega: " + e.getMessage());
         }
     }
@@ -124,27 +127,26 @@ public class EntregaService {
             int nuevoPedido = seleccionarPedido(conn);
             if (nuevoPedido == -1) return;
 
-            String updateSql = """
-                UPDATE entrega
-                SET fechaEntrega = ?, estadoEntrega = ?, idRepartidor = ?, numOrden = ?
-                WHERE numEntrega = ?
-            """;
+            // Llamar al SP
+        String sql = "{CALL sp_actualizar_entrega(?, ?, ?, ?, ?)}";
 
-            try (PreparedStatement ps = conn.prepareStatement(updateSql)) {
-                ps.setDate(1, nuevaFecha);
-                ps.setString(2, nuevoEstado);
-                ps.setInt(3, nuevoRepartidor);
-                ps.setInt(4, nuevoPedido);
-                ps.setInt(5, numEntrega);
+        try (CallableStatement cs = conn.prepareCall(sql)) {
+            cs.setInt(1, numEntrega);
+            cs.setDate(2, nuevaFecha);
+            cs.setString(3, nuevoEstado);
+            cs.setInt(4, nuevoRepartidor);
+            cs.setInt(5, nuevoPedido);
 
-                int filas = ps.executeUpdate();
-                System.out.println(filas > 0 ? "Entrega actualizada correctamente." : "No se pudo actualizar.");
-            }
-
-        } catch (SQLException e) {
-            System.out.println("Error al editar entrega: " + e.getMessage());
+            cs.execute();
+            System.out.println("Entrega actualizada correctamente mediante SP.");
         }
+
+    } catch (SQLException e) {
+        System.out.println("Error de SQL al editar entrega: " + e.getMessage());
+    } catch (Exception e) {
+        System.out.println("Error general: " + e.getMessage());
     }
+}
 
     // Métodos auxiliares
     private static int seleccionarRepartidor(Connection conn) throws SQLException {
