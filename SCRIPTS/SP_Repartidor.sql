@@ -32,6 +32,7 @@ END//
 DELIMITER ;
 
 
+--SP Ppara actualizar repartidor
 DELIMITER $$
 
 CREATE PROCEDURE sp_actualizarRepartidor(
@@ -62,6 +63,7 @@ END$$
 
 DELIMITER ;
 
+-- SP para eliminarRepartidor
 DELIMITER $$
 
 CREATE PROCEDURE sp_eliminarRepartidor(
@@ -89,6 +91,7 @@ END$$
 
 DELIMITER ;
 
+--sp para consultar a los repartidores
 
 DELIMITER $$
 
