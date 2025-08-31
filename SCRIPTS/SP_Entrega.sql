@@ -4,7 +4,7 @@ DELIMITER //
 
 CREATE PROCEDURE sp_insertar_entrega(
     IN p_fechaEntrega DATE,
-    IN p_estadoEntrega ENUM('pendiente', 'entregado', 'cancelado'),
+    IN p_estadoEntrega VARCHAR(20),
     IN p_idRepartidor INT,
     IN p_numOrden INT
 )
@@ -43,8 +43,10 @@ DELIMITER //
 
 CREATE PROCEDURE sp_actualizar_entrega(
     IN p_numEntrega INT,
-    IN p_nuevoEstado ENUM('pendiente', 'entregado', 'cancelado'),
-    IN p_nuevaFecha DATE
+    IN p_nuevoEstado VARCHAR(20),
+    IN p_nuevaFecha DATE,
+    IN p_nuevoRepartidor INT,
+    IN p_nuevoPedido INT
 )
 BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION 
@@ -60,16 +62,32 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La entrega no existe.';
     END IF;
 
+    -- Validación de repartidor
+    IF NOT EXISTS (SELECT 1 FROM repartidor WHERE idRepartidor = p_nuevoRepartidor) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El repartidor no existe.';
+    END IF;
+
+    -- Validación de pedido
+    IF NOT EXISTS (SELECT 1 FROM pedido WHERE numOrden = p_nuevoPedido) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El pedido no existe.';
+    END IF;
+
+    -- Validación del estado
+    IF p_nuevoEstado NOT IN ('pendiente','entregada') THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Estado de entrega inválido.';
+    END IF;
+
     -- Actualización
     UPDATE entrega
     SET estadoEntrega = p_nuevoEstado,
-        fechaEntrega = p_nuevaFecha
+        fechaEntrega = p_nuevaFecha,
+        idRepartidor = p_nuevoRepartidor,
+        numOrden = p_nuevoPedido
     WHERE numEntrega = p_numEntrega;
 
     COMMIT;
 END;
 //
-
 DELIMITER ;
 
 -- Eliminar
