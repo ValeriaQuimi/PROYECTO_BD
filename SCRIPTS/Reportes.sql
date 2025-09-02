@@ -78,4 +78,4 @@ JOIN pedido p ON e.numOrden = p.numOrden
 JOIN cliente c ON p.idCliente = c.idCliente;
 
 select *
-from ista_entregas_repartidor_cliente;
+from vista_entregas_repartidor_cliente;
