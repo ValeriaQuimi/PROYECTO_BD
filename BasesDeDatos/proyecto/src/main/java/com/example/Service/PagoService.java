@@ -1,189 +1,157 @@
 package com.example.Service;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.Date;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Scanner;
 
-public class PagoService {
+public class EntregaService {
     private static Scanner sc = new Scanner(System.in);
 
-    public static void registrarPago() {
+    public static void registrarEntrega() {
         try {
-            System.out.println("\n=== REGISTRAR PAGO ===");
+            System.out.println("\n=== REGISTRAR ENTREGA ===");
 
-            System.out.print("Monto del pago: ");
-            double monto = Double.parseDouble(sc.nextLine());
+            System.out.print("Fecha de entrega (YYYY-MM-DD): ");
+            String fechaStr = sc.nextLine();
+            LocalDate fechaEntrega = LocalDate.parse(fechaStr);
 
-            System.out.print("Método de pago (efectivo/transferencia): ");
-            String metodo = sc.nextLine().toLowerCase();
+            System.out.print("Estado de entrega (pendiente/entregada): ");
+            String estadoEntrega = sc.nextLine().toLowerCase();
 
-            if (!metodo.equals("efectivo") && !metodo.equals("transferencia")) {
-                System.out.println("Método inválido. Debe ser 'efectivo' o 'transferencia'.");
+            if (!estadoEntrega.equals("pendiente") && !estadoEntrega.equals("entregada")) {
+                System.out.println("Estado inválido. Debe ser 'pendiente' o 'entregada'.");
                 return;
             }
+
+            System.out.print("ID del repartidor: ");
+            int idRepartidor = Integer.parseInt(sc.nextLine());
 
             System.out.print("Número de orden del pedido: ");
             int numOrden = Integer.parseInt(sc.nextLine());
 
-            if (!existePedido(numOrden)) {
-                System.out.println("Pedido no encontrado. No se puede registrar el pago.");
-                return;
-            }
-
-            LocalDate fechaActual = LocalDate.now();
-
-            String sql = "INSERT INTO Pago (fechaPago, montoPago, metodoPago, numOrden) VALUES (?, ?, ?, ?)";
-
             try (Connection conn = ConexionBD.getConnection();
-                 PreparedStatement ps = conn.prepareStatement(sql)) {
+                 CallableStatement cs = conn.prepareCall("{ CALL sp_insertar_entrega(?, ?, ?, ?) }")) {
 
-                ps.setDate(1, Date.valueOf(fechaActual));
-                ps.setDouble(2, monto);
-                ps.setString(3, metodo);
-                ps.setInt(4, numOrden);
+                cs.setDate(1, Date.valueOf(fechaEntrega));
+                cs.setString(2, estadoEntrega);
+                cs.setInt(3, idRepartidor);
+                cs.setInt(4, numOrden);
 
-                int resultado = ps.executeUpdate();
-
-                if (resultado > 0) {
-                    System.out.println("Pago registrado correctamente.");
-                } else {
-                    System.out.println("No se pudo registrar el pago.");
-                }
+                cs.execute();
+                System.out.println("Entrega registrada correctamente usando SP.");
 
             } catch (SQLException e) {
-                System.out.println("Error en la base de datos: " + e.getMessage());
+                System.out.println("Error al registrar entrega: " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("Error general al registrar entrega: " + e.getMessage());
             }
 
-        } catch (NumberFormatException e) {
-            System.out.println("Error: formato numérico inválido.");
+        } catch (Exception e) {
+            System.out.println("Error en la entrada de datos: " + e.getMessage());
         }
     }
 
-    public static void eliminarPago() {
-        System.out.print("\nIngrese el ID del pago a eliminar: ");
-        int idPago = Integer.parseInt(sc.nextLine());
+    public static void actualizarEntrega() {
+        try {
+            System.out.println("\n=== ACTUALIZAR ENTREGA ===");
 
-        String sql = "DELETE FROM Pago WHERE idPago = ?";
+            System.out.print("Número de entrega a actualizar: ");
+            int numEntrega = Integer.parseInt(sc.nextLine());
 
-        try (Connection conn = ConexionBD.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+            System.out.print("Nuevo estado (pendiente/entregada): ");
+            String nuevoEstado = sc.nextLine().toLowerCase();
 
-            ps.setInt(1, idPago);
-            int filas = ps.executeUpdate();
-
-            if (filas > 0) {
-                System.out.println("Pago eliminado correctamente.");
-            } else {
-                System.out.println("No se encontró un pago con ese ID.");
-            }
-
-        } catch (SQLException e) {
-            System.out.println("Error al eliminar el pago: " + e.getMessage());
-        }
-    }
-
-    public static void consultarPagos() {
-        System.out.println("\n=== LISTA DE PAGOS ===");
-
-        String sql = "SELECT idPago, fechaPago, montoPago, metodoPago, numOrden FROM Pago";
-
-        try (Connection conn = ConexionBD.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            while (rs.next()) {
-                int id = rs.getInt("idPago");
-                Date fecha = rs.getDate("fechaPago");
-                double monto = rs.getDouble("montoPago");
-                String metodo = rs.getString("metodoPago");
-                int orden = rs.getInt("numOrden");
-
-                System.out.printf("ID: %d | Fecha: %s | Monto: %.2f | Método: %s | Pedido Nº: %d\n",
-                        id, fecha.toString(), monto, metodo, orden);
-            }
-
-        } catch (SQLException e) {
-            System.out.println("Error al consultar pagos: " + e.getMessage());
-        }
-    }
-
-    public static void editarPago() {
-    System.out.print("\nIngrese el ID del pago a editar: ");
-    int idPago = Integer.parseInt(sc.nextLine());
-
-    String verificarSql = "SELECT * FROM Pago WHERE idPago = ?";
-    try (Connection conn = ConexionBD.getConnection();
-         PreparedStatement verificarPs = conn.prepareStatement(verificarSql)) {
-
-        verificarPs.setInt(1, idPago);
-        try (ResultSet rs = verificarPs.executeQuery()) {
-            if (!rs.next()) {
-                System.out.println("Pago no encontrado.");
+            if (!nuevoEstado.equals("pendiente") && !nuevoEstado.equals("entregada")) {
+                System.out.println("Estado inválido.");
                 return;
             }
-        }
 
-        System.out.print("Nuevo monto: ");
-        double nuevoMonto = Double.parseDouble(sc.nextLine());
+            System.out.print("Nueva fecha (YYYY-MM-DD): ");
+            String nuevaFechaStr = sc.nextLine();
+            LocalDate nuevaFecha = LocalDate.parse(nuevaFechaStr);
 
-        System.out.print("Nuevo método de pago (efectivo/transferencia): ");
-        String nuevoMetodo = sc.nextLine().toLowerCase();
+            System.out.print("Nuevo ID de repartidor: ");
+            int nuevoRepartidor = Integer.parseInt(sc.nextLine());
 
-        if (!nuevoMetodo.equals("efectivo") && !nuevoMetodo.equals("transferencia")) {
-            System.out.println("Método inválido.");
-            return;
-        }
+            System.out.print("Nuevo número de pedido: ");
+            int nuevoPedido = Integer.parseInt(sc.nextLine());
 
-        System.out.print("Nuevo número de orden (pedido): ");
-        int nuevoPedido = Integer.parseInt(sc.nextLine());
+            try (Connection conn = ConexionBD.getConnection();
+                 CallableStatement cs = conn.prepareCall("{ CALL sp_actualizar_entrega(?, ?, ?, ?, ?) }")) {
 
-        if (!existePedido(nuevoPedido)) {
-            System.out.println("El número de pedido no existe.");
-            return;
-        }
+                cs.setInt(1, numEntrega);
+                cs.setString(2, nuevoEstado);
+                cs.setDate(3, Date.valueOf(nuevaFecha));
+                cs.setInt(4, nuevoRepartidor);
+                cs.setInt(5, nuevoPedido);
 
-        // Actualizar en la base de datos
-        String updateSql = "UPDATE Pago SET montoPago = ?, metodoPago = ?, numOrden = ? WHERE idPago = ?";
-        try (PreparedStatement updatePs = conn.prepareStatement(updateSql)) {
-            updatePs.setDouble(1, nuevoMonto);
-            updatePs.setString(2, nuevoMetodo);
-            updatePs.setInt(3, nuevoPedido);
-            updatePs.setInt(4, idPago);
+                cs.execute();
+                System.out.println("Entrega actualizada correctamente.");
 
-            int filas = updatePs.executeUpdate();
-            if (filas > 0) {
-                System.out.println("Pago actualizado correctamente.");
-            } else {
-                System.out.println("No se pudo actualizar el pago.");
+            } catch (SQLException e) {
+                System.out.println("Error al actualizar entrega: " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("Error general al actualizar entrega: " + e.getMessage());
             }
 
+        } catch (Exception e) {
+            System.out.println("Error en la entrada de datos: " + e.getMessage());
         }
-
-    } catch (SQLException e) {
-        System.out.println("Error al editar pago: " + e.getMessage());
     }
-}
 
-
-    // Método auxiliar para validar que el pedido exista
-    private static boolean existePedido(int numOrden) {
-        String sql = "SELECT numOrden FROM Pedido WHERE numOrden = ?";
+    public static void eliminarEntrega() {
+        System.out.print("\nIngrese el número de entrega a eliminar: ");
+        int numEntrega = Integer.parseInt(sc.nextLine());
 
         try (Connection conn = ConexionBD.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+             CallableStatement cs = conn.prepareCall("{ CALL sp_eliminar_entrega(?) }")) {
 
-            ps.setInt(1, numOrden);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next(); // true si existe
+            cs.setInt(1, numEntrega);
+            cs.execute();
+            System.out.println("Entrega eliminada correctamente.");
+
+        } catch (SQLException e) {
+            System.out.println("Error al eliminar entrega: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Error general al eliminar entrega: " + e.getMessage());
+        }
+    }
+
+    public static void consultarEntregas() {
+        System.out.println("\n=== LISTA DE ENTREGAS ===");
+
+        String sql = "SELECT e.numEntrega, e.fechaEntrega, e.estadoEntrega, " +
+                     "r.nombre AS nombreRepartidor, p.numOrden " +
+                     "FROM Entrega e " +
+                     "JOIN Repartidor r ON e.idRepartidor = r.idRepartidor " +
+                     "JOIN Pedido p ON e.numOrden = p.numOrden " +
+                     "ORDER BY e.numEntrega";
+
+        try (Connection conn = ConexionBD.getConnection();
+             CallableStatement cs = conn.prepareCall(sql);
+             ResultSet rs = cs.executeQuery()) {
+
+            System.out.printf("%-8s %-12s %-15s %-20s %-10s\n", 
+                             "Entrega", "Fecha", "Estado", "Repartidor", "Pedido");
+            System.out.println("------------------------------------------------------------");
+
+            while (rs.next()) {
+                System.out.printf("%-8d %-12s %-15s %-20s %-10d\n",
+                                rs.getInt("numEntrega"),
+                                rs.getDate("fechaEntrega"),
+                                rs.getString("estadoEntrega"),
+                                rs.getString("nombreRepartidor"),
+                                rs.getInt("numOrden"));
             }
 
         } catch (SQLException e) {
-            System.out.println("Error al buscar el pedido: " + e.getMessage());
-            return false;
+            System.out.println("Error al consultar entregas: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Error general al consultar entregas: " + e.getMessage());
         }
     }
 }
