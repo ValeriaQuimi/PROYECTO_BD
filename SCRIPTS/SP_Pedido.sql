@@ -106,10 +106,6 @@ BEGIN
         SET MESSAGE_TEXT = 'El pedido no existe';
     END IF;
 
-    -- Opcional: impedir eliminar si ya fue entregado
-    -- IF (SELECT estadoPedido FROM Pedido WHERE numOrden = p_numOrden) = 'entregada' THEN
-    --     SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'No se puede eliminar un pedido entregado';
-    -- END IF;
 
     DELETE FROM Pedido WHERE numOrden = p_numOrden;
 
