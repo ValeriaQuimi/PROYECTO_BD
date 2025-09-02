@@ -11,6 +11,8 @@ import com.example.Menu.PagoMenu;
 import com.example.Menu.PedidoMenu;
 import com.example.Menu.ProductoMenu;
 import com.example.Menu.RepartidorMenu;
+import com.example.Menu.ReporteMenu;
+
 
 public class SistemaJoyeria {
 
@@ -40,7 +42,6 @@ public class SistemaJoyeria {
                 case 5:
                     PagoMenu.gestionPagos();
                     break;
-
                 case 6:
                     RepartidorMenu.gestionRepartidores();
                     break;
@@ -49,6 +50,9 @@ public class SistemaJoyeria {
                     break;
                 case 8:
                     DetalleMenu.gestionDetalles();
+                    break;
+                case 9:
+                    ReporteMenu.mostrarMenuReportes();
                     break;
                 case 0:
                     salir = true;
@@ -59,4 +63,6 @@ public class SistemaJoyeria {
             }
         }
     }
+
+    
 }
