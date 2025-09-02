@@ -1,5 +1,6 @@
 package com.example.Service;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -37,28 +38,24 @@ public class ClienteService {
         System.out.print("Referencia de dirección: ");
         String referencia = sc.nextLine();
 
-        String sql = "INSERT INTO Cliente (nombre, telefono, correo, tipo, dir_ciudad, dir_calle, dir_referencia) VALUES (?, ?, ?, ?, ?, ?, ?)";
-
         try (Connection conn = ConexionBD.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+             CallableStatement cs = conn.prepareCall("{ CALL sp_insertarCliente(?, ?, ?, ?, ?, ?, ?) }")) {
             
-            ps.setString(1, nombre);
-            ps.setInt(2, telefono);
-            ps.setString(3, correo);
-            ps.setString(4, tipo);
-            ps.setString(5, ciudad);
-            ps.setString(6, calle);
-            ps.setString(7, referencia);
+            cs.setString(1, nombre);
+            cs.setInt(2, telefono);
+            cs.setString(3, correo);
+            cs.setString(4, tipo);
+            cs.setString(5, ciudad);
+            cs.setString(6, calle);
+            cs.setString(7, referencia);
 
-            int filas = ps.executeUpdate();
+            cs.execute();
+            System.out.println("Cliente registrado correctamente.");
 
-            if (filas > 0) {
-                System.out.println("Cliente registrado correctamente.");
-            } else {
-                System.out.println("No se pudo registrar el cliente.");
-            }
+        } catch (SQLException e) {
+            System.out.println("Error del SP al registrar cliente: " + e.getMessage());
         } catch (Exception e) {
-            System.out.println("Error al registrar cliente: " + e.getMessage());
+            System.out.println("Error general al registrar cliente: " + e.getMessage());
         }
     }
 
@@ -66,8 +63,17 @@ public class ClienteService {
         System.out.print("\nIngrese el ID del cliente a actualizar: ");
         int id = Integer.parseInt(sc.nextLine());
 
+        System.out.print("Nuevo nombre: ");
+        String nuevoNombre = sc.nextLine();
+        
         System.out.print("Nuevo teléfono: ");
         int nuevoTelefono = Integer.parseInt(sc.nextLine());
+        
+        System.out.print("Nuevo correo: ");
+        String nuevoCorreo = sc.nextLine();
+        
+        System.out.print("Nuevo tipo (vip/estandar): ");
+        String nuevoTipo = sc.nextLine();
         
         System.out.print("Nueva ciudad: ");
         String nuevaCiudad = sc.nextLine();
@@ -78,27 +84,25 @@ public class ClienteService {
         System.out.print("Nueva referencia: ");
         String nuevaReferencia = sc.nextLine();
 
-        String sql = "UPDATE Cliente SET telefono = ?, dir_ciudad = ?, dir_calle = ?, dir_referencia = ? WHERE idCliente = ?";
-
         try (Connection conn = ConexionBD.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+             CallableStatement cs = conn.prepareCall("{ CALL sp_actualizarCliente(?, ?, ?, ?, ?, ?, ?) }")) {
 
-            ps.setInt(1, nuevoTelefono);
-            ps.setString(2, nuevaCiudad);
-            ps.setString(3, nuevaCalle);
-            ps.setString(4, nuevaReferencia);
-            ps.setInt(5, id);
+            cs.setInt(1, id);
+            cs.setString(2, nuevoNombre);
+            cs.setInt(3, nuevoTelefono);
+            cs.setString(4, nuevoCorreo);
+            cs.setString(5, nuevoTipo);
+            cs.setString(6, nuevaCiudad);
+            cs.setString(7, nuevaCalle);
+            cs.setString(8, nuevaReferencia);
 
-            int filasActualizadas = ps.executeUpdate();
-
-            if (filasActualizadas > 0) {
-                System.out.println("Cliente actualizado correctamente.");
-            } else {
-                System.out.println("Cliente no encontrado o no se pudo actualizar.");
-            }
+            cs.execute();
+            System.out.println("Cliente actualizado correctamente.");
 
         } catch (SQLException e) {
             System.out.println("Error al actualizar cliente: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Error general al actualizar cliente: " + e.getMessage());
         }
     }
 
@@ -106,34 +110,26 @@ public class ClienteService {
         System.out.print("\nIngrese el ID del cliente a eliminar: ");
         int id = Integer.parseInt(sc.nextLine());
 
-        String sql = "DELETE FROM Cliente WHERE idCliente = ?";
-
         try (Connection conn = ConexionBD.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+             CallableStatement cs = conn.prepareCall("{ CALL sp_eliminarCliente(?) }")) {
 
-            ps.setInt(1, id);
-
-            int filasEliminadas = ps.executeUpdate();
-
-            if (filasEliminadas > 0) {
-                System.out.println("Cliente eliminado correctamente.");
-            } else {
-                System.out.println("Cliente no encontrado.");
-            }
+            cs.setInt(1, id);
+            cs.execute();
+            System.out.println("Cliente eliminado correctamente");
 
         } catch (SQLException e) {
             System.out.println("Error al eliminar cliente: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Error general al eliminar cliente: " + e.getMessage());
         }
     }
 
     public static void consultarClientes() {
         System.out.println("\n--- Listado de Clientes ---");
 
-        String sql = "SELECT idCliente, nombre, telefono, correo, tipo, dir_ciudad, dir_calle, dir_referencia FROM Cliente";
-
         try (Connection conn = ConexionBD.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+             CallableStatement cs = conn.prepareCall("{ CALL sp_consultarClientes() }");
+             ResultSet rs = cs.executeQuery()) {
 
             while (rs.next()) {
                 System.out.printf(
@@ -151,6 +147,8 @@ public class ClienteService {
 
         } catch (SQLException e) {
             System.out.println("Error al consultar clientes: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Error general al consultar clientes: " + e.getMessage());
         }
     }
 
@@ -182,3 +180,4 @@ public class ClienteService {
         return null; // No encontrado
     }
 }
+
