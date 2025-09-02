@@ -1,158 +1,110 @@
 package com.example.Service;
 
-import java.sql.*;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Scanner;
 
 public class DetalleService {
-    private static final Scanner sc = new Scanner(System.in);
+    private static Scanner sc = new Scanner(System.in);
 
     public static void registrarDetalle() {
-        try {
-            System.out.println("\n=== REGISTRAR DETALLE ===");
-
-            System.out.print("Número de orden: ");
-            int numOrden = Integer.parseInt(sc.nextLine());
-
-            System.out.print("ID del producto: ");
-            int idProduct = Integer.parseInt(sc.nextLine());
-
-            System.out.print("Cantidad: ");
-            int cantidad = Integer.parseInt(sc.nextLine());
-
-            System.out.print("Precio por cantidad: ");
-            double precioCantidad = Double.parseDouble(sc.nextLine());
-
-            String sql = "INSERT INTO Detalle (numOrden, idProduct, cantidad, precioCantidad) VALUES (?, ?, ?, ?)";
-
-            try (Connection conn = ConexionBD.getConnection();
-                 PreparedStatement ps = conn.prepareStatement(sql)) {
-
-                ps.setInt(1, numOrden);
-                ps.setInt(2, idProduct);
-                ps.setInt(3, cantidad);
-                ps.setDouble(4, precioCantidad);
-
-                int filas = ps.executeUpdate();
-
-                if (filas > 0) {
-                    System.out.println(" Detalle registrado correctamente.");
-                } else {
-                    System.out.println(" No se pudo registrar el detalle.");
-                }
-
-            } catch (SQLException e) {
-                System.out.println(" Error en la base de datos: " + e.getMessage());
-            }
-
-        } catch (NumberFormatException e) {
-            System.out.println(" Error en el formato de los datos ingresados.");
+        System.out.println("\n=== REGISTRAR DETALLE ===");
+        
+        System.out.print("Número de orden: ");
+        int numOrden = Integer.parseInt(sc.nextLine());
+        
+        System.out.print("ID del producto: ");
+        int idProduct = Integer.parseInt(sc.nextLine());
+        
+        System.out.print("Cantidad: ");
+        int cantidad = Integer.parseInt(sc.nextLine());
+        
+        try (Connection conn = ConexionBD.getConnection();
+             CallableStatement cs = conn.prepareCall("{ CALL sp_insertar_detalle(?, ?, ?) }");) {
+            cs.setInt(1, numOrden);
+            cs.setInt(2, idProduct);
+            cs.setInt(3, cantidad);
+            cs.execute();
+            System.out.println("Detalle registrado correctamente.");
+        } catch (SQLException e) {
+            System.out.println("Error al registrar detalle: " + e.getMessage());
         }
     }
 
-    public static void consultarDetalles() {
-        System.out.println("\n=== LISTA DE DETALLES ===");
-
-        String sql = "SELECT * FROM Detalle";
+    public static void actualizarDetalle() {
+        System.out.println("\n=== ACTUALIZAR DETALLE ===");
+        
+        System.out.print("Número de orden: ");
+        int numOrden = Integer.parseInt(sc.nextLine());
+        
+        System.out.print("ID del producto: ");
+        int idProduct = Integer.parseInt(sc.nextLine());
+        
+        System.out.print("Nueva cantidad: ");
+        int nuevaCantidad = Integer.parseInt(sc.nextLine());
 
         try (Connection conn = ConexionBD.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            while (rs.next()) {
-                int numOrden = rs.getInt("numOrden");
-                int idProduct = rs.getInt("idProduct");
-                int cantidad = rs.getInt("cantidad");
-                double precio = rs.getDouble("precioCantidad");
-
-                System.out.printf("Orden: %d | Producto: %d | Cantidad: %d | Precio: %.2f%n",
-                        numOrden, idProduct, cantidad, precio);
-            }
-
+             CallableStatement cs = conn.prepareCall("{ CALL sp_actualizar_detalle(?, ?, ?) }");) {
+            cs.setInt(1, numOrden);
+            cs.setInt(2, idProduct);
+            cs.setInt(3, nuevaCantidad);
+            cs.execute();
+            System.out.println("Detalle actualizado correctamente.");
         } catch (SQLException e) {
-            System.out.println(" Error al consultar detalles: " + e.getMessage());
-        }
-    }
-
-    public static void editarDetalle() {
-        try {
-            System.out.println("\n=== EDITAR DETALLE ===");
-
-            System.out.print("Número de orden: ");
-            int numOrden = Integer.parseInt(sc.nextLine());
-
-            System.out.print("ID del producto: ");
-            int idProduct = Integer.parseInt(sc.nextLine());
-
-            // Verificamos si existe
-            String checkSql = "SELECT * FROM Detalle WHERE numOrden = ? AND idProduct = ?";
-            try (Connection conn = ConexionBD.getConnection();
-                 PreparedStatement checkPs = conn.prepareStatement(checkSql)) {
-
-                checkPs.setInt(1, numOrden);
-                checkPs.setInt(2, idProduct);
-                ResultSet rs = checkPs.executeQuery();
-
-                if (!rs.next()) {
-                    System.out.println(" No se encontró un detalle con esa orden y producto.");
-                    return;
-                }
-
-                System.out.print("Nueva cantidad: ");
-                int nuevaCantidad = Integer.parseInt(sc.nextLine());
-
-                System.out.print("Nuevo precio por cantidad: ");
-                double nuevoPrecio = Double.parseDouble(sc.nextLine());
-
-                String updateSql = "UPDATE Detalle SET cantidad = ?, precioCantidad = ? WHERE numOrden = ? AND idProduct = ?";
-                try (PreparedStatement updatePs = conn.prepareStatement(updateSql)) {
-                    updatePs.setInt(1, nuevaCantidad);
-                    updatePs.setDouble(2, nuevoPrecio);
-                    updatePs.setInt(3, numOrden);
-                    updatePs.setInt(4, idProduct);
-
-                    int filas = updatePs.executeUpdate();
-                    if (filas > 0) {
-                        System.out.println(" Detalle actualizado correctamente.");
-                    } else {
-                        System.out.println(" No se pudo actualizar el detalle.");
-                    }
-                }
-            }
-
-        } catch (SQLException | NumberFormatException e) {
-            System.out.println(" Error al editar detalle: " + e.getMessage());
+            System.out.println("Error al actualizar detalle: " + e.getMessage());
         }
     }
 
     public static void eliminarDetalle() {
-        try {
-            System.out.println("\n=== ELIMINAR DETALLE ===");
+        System.out.println("\n=== ELIMINAR DETALLE ===");
+        
+        System.out.print("Número de orden: ");
+        int numOrden = Integer.parseInt(sc.nextLine());
+        
+        System.out.print("ID del producto: ");
+        int idProduct = Integer.parseInt(sc.nextLine());
+        
+        try (Connection conn = ConexionBD.getConnection();
+             CallableStatement cs = conn.prepareCall("{ CALL sp_eliminar_detalle(?, ?) }");) {
+            cs.setInt(1, numOrden);
+            cs.setInt(2, idProduct);
+            cs.execute();
+            System.out.println("Detalle eliminado correctamente.");
+        } catch (SQLException e) {
+            System.out.println("Error al eliminar detalle: " + e.getMessage());
+        }
+    }
 
-            System.out.print("Número de orden: ");
-            int numOrden = Integer.parseInt(sc.nextLine());
+    public static void consultarDetallesPorPedido() {
+        System.out.println("\n=== CONSULTAR DETALLES POR PEDIDO ===");
+        
+        System.out.print("Número de orden: ");
+        int numOrden = Integer.parseInt(sc.nextLine());
 
-            System.out.print("ID del producto: ");
-            int idProduct = Integer.parseInt(sc.nextLine());
-
-            String sql = "DELETE FROM Detalle WHERE numOrden = ? AND idProduct = ?";
-
-            try (Connection conn = ConexionBD.getConnection();
-                 PreparedStatement ps = conn.prepareStatement(sql)) {
-
-                ps.setInt(1, numOrden);
-                ps.setInt(2, idProduct);
-
-                int filas = ps.executeUpdate();
-                if (filas > 0) {
-                    System.out.println(" Detalle eliminado correctamente.");
-                } else {
-                    System.out.println(" No se encontró un detalle con esos datos.");
+        try (Connection conn = ConexionBD.getConnection();
+             CallableStatement cs = conn.prepareCall("{ CALL sp_consultar_detalles_por_pedido(?) }");) {
+            cs.setInt(1, numOrden);
+            boolean hasResultSet = cs.execute();
+            if (hasResultSet) {
+                try (ResultSet rs = cs.getResultSet()) {
+                    System.out.printf("%-8s %-10s %-30s %-10s %-12s\n", "Orden", "Producto", "Nombre", "Cantidad", "Precio Total");
+                    System.out.println("---------------------------------------------------------------------");
+                    while (rs.next()) {
+                        System.out.printf("%-8d %-10d %-30s %-10d $%-12.2f\n",
+                                rs.getInt("numOrden"),
+                                rs.getInt("idProduct"),
+                                rs.getString("nombreProduct"),
+                                rs.getInt("cantidad"),
+                                rs.getDouble("precioCantidad"));
+                    }
                 }
-
+            } else {
+                System.out.println("No hay detalles para el pedido indicado.");
             }
-
-        } catch (SQLException | NumberFormatException e) {
-            System.out.println(" Error al eliminar detalle: " + e.getMessage());
+        } catch (SQLException e) {
+            System.out.println("Error al consultar detalles: " + e.getMessage());
         }
     }
 }
