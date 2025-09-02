@@ -101,10 +101,6 @@ BEGIN
         SET MESSAGE_TEXT = 'El cliente no existe';
     END IF;
 
-    -- Opcional: impedir eliminar si tiene pedidos
-    -- IF EXISTS (SELECT 1 FROM Pedido WHERE idCliente = p_idCliente) THEN
-    --     SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'No se puede eliminar un cliente con pedidos';
-    -- END IF;
 
     DELETE FROM Cliente WHERE idCliente = p_idCliente;
 
