@@ -27,7 +27,6 @@ SELECT
     c.correo,
     c.tipo,
     p.numOrden,
-    p.fechaPedido, -- si no tienes fecha, se puede quitar
     p.precioTotal,
     d.cantidad,
     pr.nombreProduct,
